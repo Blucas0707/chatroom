@@ -15,4 +15,5 @@ func InitServer() {
 	})
 	fmt.Println(Server)
 	Server.Logger.Fatal(Server.Start(":1323"))
+	//////TEST
 }
