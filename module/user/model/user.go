@@ -1,22 +1,26 @@
 package model
 
 import (
-	"chatroom/module/common/server"
+	// "chatroom/module/common/server"
+	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 type userAccount struct {
-	name     string
-	email    string
-	password string
+	name     string `json:name`
+	email    string `json:email`
+	password string `json:password`
 }
 
 var user = &userAccount{}
 
-func init() {
-	server.InitServer()
-}
+// func init() {
+// 	server.InitServer()
+// }
 
 //Get user register data
-func GetRegister() {
-	Server.GET("/users/:id")
+func GetRegister(c echo.Context) error {
+	id := c.Param("id")
+	return c.String(http.StatusOK, id)
 }
