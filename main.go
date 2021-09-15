@@ -3,16 +3,17 @@ package main
 import (
 	"chatroom/module/common/db_module"
 	"database/sql"
+	"fmt"
 )
 
 func main() {
 	//InitDB
-	DB, err := db_module.InitDB()
+	DB, _ := db_module.InitDB()
 	// server.InitServer()
 
 	// testEmail := "123@123.com"
 	// db_module.CheckEmail(testEmail)
-	CheckEmail
+	CheckEmail(DB, 1)
 
 	// c := echo.Context
 	// model.GetRegister(c)
@@ -24,9 +25,14 @@ func main() {
 // 	return c.String(http.StatusOK, id)
 // }
 
+type Member struct {
+	id int
+}
+
 //TODO
-func CheckEmail(db *sql.DB, id int) (int bool) {
-	var uid int
-	err := db.QueryRow("select count(*) from userinfo where user_id = ?", id).Scan(&uid)
-	return uid, err
+func CheckEmail(db *sql.DB, id int) (*Member, error) {
+	mem := &Member{}
+	err := db.QueryRow("select count(*) from userinfo where user_id = ?", id).Scan(&mem.id)
+	fmt.Println(mem)
+	return mem, err
 }
