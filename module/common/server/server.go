@@ -44,6 +44,7 @@ func userlogin(c echo.Context) error {
 	return c.String(http.StatusOK, "name:"+name+" email:"+email)
 }
 
+//TODO: wait api https://app.swaggerhub.com/apis-docs/padax/taipei-trip/1.0.0?loggedInWithGitHub=true#/%E4%BD%BF%E7%94%A8%E8%80%85/patch_api_user
 func userregister(c echo.Context) error {
 	//get json request
 	json_map := make(map[string]interface{})
