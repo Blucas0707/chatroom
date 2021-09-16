@@ -4,6 +4,8 @@ import (
 	. "chatroom/module/common/server"
 )
 
+// . "chatroom/module/common/server"
+
 type user struct {
 	username     string
 	useremail    string

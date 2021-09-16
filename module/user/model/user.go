@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"sync"
+	"unicode"
 )
 
 // type userAccount struct {
@@ -81,8 +82,50 @@ func CheckUserRegister(name, email, password string) bool {
 		}
 	}(registerAllowed)
 
+	// //Check password format:至少 8 碼，需有英文大小寫與數字混用，至少要有一個英文字母與數字。
+	wg.Add(1)
+	go func(c chan bool) {
+		select {
+		case iscontinue := <-c:
+			if iscontinue {
+				checkResult := Validation(password)
+				fmt.Println(checkResult)
+				c <- checkResult
+				wg.Done()
+			} else {
+				c <- false
+				wg.Done()
+			}
+		}
+	}(registerAllowed)
+
 	wg.Wait()
 
 	result := <-registerAllowed
 	return result
+}
+
+func Validation(password string) bool {
+	var (
+		isUpper  = false
+		isLower  = false
+		isNumber = false
+	)
+	if len(password) < 8 {
+		return false
+	}
+	for _, s := range password {
+		switch {
+		case unicode.IsUpper(s):
+			isUpper = true
+		case unicode.IsLower(s):
+			isLower = true
+		case unicode.IsNumber(s):
+			isNumber = true
+		}
+	}
+	if (isUpper && isLower) && isNumber {
+		return true
+	}
+	return false
 }
