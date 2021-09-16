@@ -18,9 +18,9 @@ func Login(useremail, password string) []string {
 }
 
 //Before register, check if name and email are taken
-func Register(name, email, password string) string {
+func Register(name, email, password, passwordConfirm string) string {
 	db, _ := InitDB()
-	allowedRegister := model.CheckUserRegister(name, email, password)
+	allowedRegister := model.CheckUserRegister(name, email, password, passwordConfirm)
 	if allowedRegister {
 		fmt.Println("Register Allowed")
 		fmt.Printf("Registering...")

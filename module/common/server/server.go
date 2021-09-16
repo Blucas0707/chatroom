@@ -53,17 +53,8 @@ func userregister(c echo.Context) error {
 	if err := c.Bind(res); err != nil {
 		return err
 	}
-	// password reconfirm
-	if password != passwordConfirm {
-		res.Status = "false"
-		res.Message = "not the same"
-		fmt.Println(res)
-		return c.JSON(http.StatusCreated, res)
-	}
-	fmt.Println("prepare check")
-	// check user name taken
-	// result := model.CheckUserRegister(name, email, password)
-	result := controller.Register(name, email, password)
+
+	result := controller.Register(name, email, password, passwordConfirm)
 	fmt.Println(result)
 	return c.String(http.StatusOK, "name:"+name+" email:"+email+" password:"+password+" passwordConfirm:"+passwordConfirm)
 }
