@@ -12,8 +12,10 @@ import (
 func InitServer() *echo.Echo {
 	//InitServer
 	server := echo.New()
+	//setting static: 例如：static目录下存在js/index.js文件， 则这个js的url为：/static/js/index.js
+	server.Static("/static", "static")
 	server.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello World")
+		return c.File("templates/index.html")
 	})
 
 	//Register
@@ -43,6 +45,26 @@ func userlogin(c echo.Context) error {
 }
 
 func userregister(c echo.Context) error {
+	//get json request
+	json_map := make(map[string]interface{})
+	if err := c.Bind(&json_map); err != nil {
+		return err
+	}
+	json_name := fmt.Sprintf("%v", json_map["name"])
+	fmt.Println(json_name)
+	return c.String(http.StatusOK, json_name)
+
+	// err := json.NewDecoder(c.Request().Body).Decode(&json_map)
+	// if err != nil {
+	// 	return err
+	// } else {
+	// 	//json_map has the JSON Payload decoded into a map
+	// 	json_name := json_map["name"]
+	// 	json_email := json_map["email"]
+	// 	json_password := json_map["password"]
+	// 	fmt.Printf(json_name, json_email, json_password)
+	// }
+
 	//Get name, email and password
 	name := c.FormValue("name")
 	fmt.Println("name:", name)
