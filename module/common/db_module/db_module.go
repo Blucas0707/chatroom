@@ -1,6 +1,7 @@
 package db_module
 
 import (
+	. "chatroom/module/common/error"
 	"database/sql"
 	"fmt"
 	"log"
@@ -8,47 +9,155 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/joho/godotenv"
+	_ "github.com/joho/godotenv/autoload"
 )
 
-var DB *sql.DB
+// var db *sql.DB
+
+const (
+	ConnMaxLifetime int64 = 3
+	MaxOpenConns    int   = 10
+	MaxIdleConns    int   = 10
+)
 
 //InitDB
 func InitDB() (*sql.DB, error) {
 	//Create connection pool
 	fmt.Println("Preparing to create a connection pool")
 	sql_connection_info := os.Getenv("SQL_CONNECTION_INFO")
-	DB, err := sql.Open("mysql", sql_connection_info)
-	DB.SetConnMaxLifetime(time.Minute * 3)
-	DB.SetMaxOpenConns(10)
-	DB.SetMaxIdleConns(10)
-
+	db, err := sql.Open("mysql", sql_connection_info)
 	if err != nil {
 		fmt.Println("error occur when connect to sql:", err)
 		return nil, err
+	}
+
+	fmt.Println("Set DB ConnMaxLifetime: ", ConnMaxLifetime)
+	db.SetConnMaxLifetime(time.Minute * time.Duration(ConnMaxLifetime))
+	fmt.Println("Set DB MaxOpenConns: ", MaxOpenConns)
+	db.SetMaxOpenConns(MaxOpenConns)
+	fmt.Println("Set DB MaxIdleConns: ", MaxIdleConns)
+	db.SetMaxIdleConns(MaxIdleConns)
+	fmt.Println("connect to DB successfully")
+	return db, nil
+
+}
+
+// Check email is taken
+func CheckEmailisNotExisted(db *sql.DB, email string) (bool, error) {
+	sel, err := db.Prepare("select count(*) from userinfo where user_email = ?")
+	if err != nil {
+		log.Println("sel error:", err)
+		return false, err
+	}
+	defer sel.Close()
+
+	rows, err := sel.Query(email)
+	if CheckError(err) {
+		return false, err
+	}
+
+	defer rows.Close()
+	var count int
+	if rows.Next() {
+		err := rows.Scan(&count)
+		if CheckError(err) {
+			return false, err
+		}
+		fmt.Println("count:", count)
 	} else {
-		fmt.Println("connect to DB successfully")
-		return DB, nil
+		log.Printf("email %s not found\n", email)
+	}
+
+	if count == 0 {
+		return true, nil
+	} else {
+		return false, nil
 	}
 }
 
-type user struct {
-	id    string
-	name  string
-	email string
+//check name is taken
+func CheckNameisNotExisted(db *sql.DB, name string) (bool, error) {
+	sel, err := db.Prepare("select count(*) from userinfo where user_name = ?")
+	if err != nil {
+		log.Println("sel error:", err)
+		return false, err
+	}
+	defer sel.Close()
+
+	rows, err := sel.Query(name)
+	if CheckError(err) {
+		return false, err
+	}
+
+	defer rows.Close()
+	var count int
+	if rows.Next() {
+		err := rows.Scan(&count)
+		if CheckError(err) {
+			return false, err
+		}
+		fmt.Println("count:", count)
+	} else {
+		log.Printf("name %s not found\n", name)
+	}
+	if count == 0 {
+		return true, nil
+	} else {
+		return false, nil
+	}
 }
 
-func CheckEmail(email string) bool {
-	sql, err := DB.Prepare("SELECT count(*) from userinfo")
+//TODO: Encrypt password
+//user register
+func UserRegister(db *sql.DB, username, useremail, userpassword string) (bool, error) {
+	ins, err := db.Prepare("insert into userinfo(user_name, user_email, user_password) values(?, ?, ?)")
 	if err != nil {
-		log.Println("checkEmail query stmt error: ", err)
-		return false
+		log.Println("sel error:", err)
+		return false, err
 	}
-	rows, err := sql.Query(email)
+	defer ins.Close()
+
+	result, err := ins.Exec(username, useremail, userpassword)
+	if CheckError(err) {
+		return false, err
+	}
+	defer ins.Close()
+	id, err := result.LastInsertId()
+	if CheckError(err) {
+		return false, err
+	}
+	fmt.Printf("LastInsertId: %d\n", id)
+	return true, nil
+}
+
+//user login
+func CheckUserLogin(db *sql.DB, useremail string, userpassword string) ([]string, error) {
+	sel, err := db.Prepare("SELECT user_id, user_name from userinfo where user_email = ? and user_password = ? limit 1")
 	if err != nil {
-		log.Println("checkEmail query error: ", err)
-		return false
+		log.Printf("CheckUserLogin error: %v\n", err)
+		return []string{"0"}, err
 	}
-	fmt.Println(rows)
-	return true
+	defer sel.Close()
+
+	rows, err := sel.Query(useremail, userpassword)
+	if err != nil {
+		log.Printf("CheckUserLogin query error:%v \n", err)
+	}
+	defer rows.Close()
+	var userlogininfo []string
+	var user_id string
+	var user_name string
+	if rows.Next() {
+		err := rows.Scan(&user_id, &user_name)
+		if err != nil {
+			log.Printf("CheckUserLogin rows error: %v \n", err)
+			return []string{"0"}, err
+		}
+	} else {
+		log.Printf("user info not found\n")
+		return []string{"0"}, err
+	}
+	userlogininfo = append(userlogininfo, user_id)
+	userlogininfo = append(userlogininfo, user_name)
+	return userlogininfo, nil
 }

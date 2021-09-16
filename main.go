@@ -1,38 +1,43 @@
 package main
 
 import (
-	"chatroom/module/common/db_module"
-	"database/sql"
-	"fmt"
+	. "chatroom/module/common/server"
 )
 
+type user struct {
+	username     string
+	useremail    string
+	userpassword string
+}
+
 func main() {
+	InitServer()
 	//InitDB
-	DB, _ := db_module.InitDB()
+	// db, err := db_module.InitDB()
+	// if err != nil {
+	// 	fmt.Println("DB init error:", err)
+	// 	return
+	// }
 	// server.InitServer()
 
-	// testEmail := "123@123.com"
-	// db_module.CheckEmail(testEmail)
-	CheckEmail(DB, 1)
+	// testEmail := "test@test.comsss"
+	// checkEmailResult, err := db_module.CheckEmailisNotExisted(db, testEmail)
+	// fmt.Println(checkEmailResult, err)
 
-	// c := echo.Context
-	// model.GetRegister(c)
+	// testName := "test123"
+	// checkNameResult, err := db_module.CheckNameisNotExisted(db, testName)
+	// fmt.Println(checkNameResult, err)
 
-}
+	// testuser := user{
+	// 	username:     "testuser",
+	// 	useremail:    "test2@test.com",
+	// 	userpassword: "test",
+	// }
+	// registerResult, err := db_module.UserRegister(db, testuser.username, testuser.useremail, testuser.userpassword)
+	// fmt.Println(registerResult, err)
 
-// func getUser(c echo.Context) error {
-// 	id := c.Param("id")
-// 	return c.String(http.StatusOK, id)
-// }
-
-type Member struct {
-	id int
-}
-
-//TODO
-func CheckEmail(db *sql.DB, id int) (*Member, error) {
-	mem := &Member{}
-	err := db.QueryRow("select count(*) from userinfo where user_id = ?", id).Scan(&mem.id)
-	fmt.Println(mem)
-	return mem, err
+	// testuseremail := "test@test.com"
+	// testpassword := "test"
+	// LoginResult, err := db_module.CheckUserLogin(db, testuseremail, testpassword)
+	// fmt.Println(LoginResult, err)
 }

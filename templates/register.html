@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action="/api/user" method="post" enctype="multipart/form">
+        <div><label for="email">Email(1):</label><input type="text" name="email" placeholder="please enter your email" required></div>
+        <div><label for="password">Password(2):</label><input type="password" name="password" placeholder="please enter your password" required></div>
+        <div><label for="password-confirm">Retype Password(3):</label><input type="password" name="password-confirm" placeholder="please re-enter your password" required></div>
+        <div><label for="name">Nickname(4):</label><input type="text" name="name" placeholder="please enter your nickname" required></div>
+        <div><input type="submit" value="Signup(5)"></div>
+    </form>
+    <script src="../static/js/register.js" type="text/javascript"></script>
+</body>
+</html>
