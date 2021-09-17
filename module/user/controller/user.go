@@ -25,8 +25,8 @@ func Register(name, email, password, passwordConfirm string) model.Message {
 
 }
 
-func Login(email, password string) model.Message {
-	ErrorMessage := model.CheckUserLogin(email, password)
-	return ErrorMessage
+func Login(email, password string) (model.Message, string) {
+	ErrorMessage, username := model.CheckUserLogin(email, password)
+	return ErrorMessage, username
 
 }

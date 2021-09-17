@@ -71,18 +71,20 @@ func init() {
 	db, _ = db_module.InitDB()
 }
 
-func CheckUserLogin(email, password string) Message {
-	result, err := db_module.UserLogin(db, email, password)
+func CheckUserLogin(email, password string) (Message, string) {
+	result, username, _ := db_module.UserLogin(db, email, password)
 	errorcode := 0
-	if err != nil {
-		errorcode = 8
-	} else if result && err == nil {
-		errorcode = 6
-	} else {
+
+	if result == 0 {
 		errorcode = 7
+	} else if result == -1 {
+		errorcode = 8
+	} else if result == 1 {
+		errorcode = 6
 	}
+
 	errorMessage := responseMessage[errorcode]
-	return errorMessage
+	return errorMessage, username
 }
 
 func CheckUserRegister(name, email, password, passwordConfirm string) Message {

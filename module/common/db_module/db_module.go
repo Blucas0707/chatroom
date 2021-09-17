@@ -131,37 +131,38 @@ func UserRegister(db *sql.DB, username, useremail, userpassword string) (bool, e
 }
 
 //user login
-func UserLogin(db *sql.DB, useremail string, userpassword string) (bool, error) {
-	sel, err := db.Prepare("SELECT count(*) from userinfo where user_email = ? and user_password = ? limit 1")
+func UserLogin(db *sql.DB, useremail string, userpassword string) (int, string, error) {
+	sel, err := db.Prepare("SELECT count(*), user_name from userinfo where user_email = ? and user_password = ? limit 1")
 	if err != nil {
 		log.Printf("CheckUserLogin error: %v\n", err)
-		return false, err
+		return -1, "", err
 	}
 	defer sel.Close()
 
 	rows, err := sel.Query(useremail, userpassword)
 	if err != nil {
 		log.Printf("CheckUserLogin query error:%v \n", err)
-		return false, err
+		return -1, "", err
 	}
 	defer rows.Close()
 
 	user_count := 0
+	user_name := ""
 	if rows.Next() {
-		err := rows.Scan(&user_count)
+		err := rows.Scan(&user_count, &user_name)
 		if err != nil {
 			log.Printf("CheckUserLogin rows error: %v \n", err)
-			return false, err
+			return user_count, "", err
 		}
 	} else {
 		log.Printf("user %s not found\n", useremail)
-		return false, err
+		return user_count, "", err
 	}
 
 	if user_count == 1 {
-		log.Println("user %s found\n", useremail)
+		log.Printf("user %s found\n", useremail)
 	} else {
-		return false, nil
+		return user_count, user_name, nil
 	}
-	return true, nil
+	return user_count, user_name, nil
 }

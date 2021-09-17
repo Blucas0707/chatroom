@@ -42,9 +42,10 @@ let models = {
         }).then((response)=>{
           return response.json();
         }).then((result)=>{
+          console.log(result)
           if(result != null){
             models.user.isLogin = true;
-            models.user.user_name = JSON.parse(result).data.name;
+            // models.user.user_name = JSON.parse(result).data.name;
           }
           else{
             models.user.isLogin = false;
@@ -271,10 +272,20 @@ let controllers = {
     login:function(){
         let login_btn = document.querySelector(".login-btn");
         login_btn.addEventListener("click", ()=>{
-          models.user.Login().then(()=>{
-            console.log("login");
-            views.user.loginStatus();
-          });
+          
+          let email = document.querySelector(".login-email").value;
+          let password = document.querySelector(".login-password").value;
+          if (email.length === 0 || password.length === 0) {
+            let login_status = document.querySelector(".login-status");
+            login_status.style.display = "flex";
+            login_status.style.color = "red";
+            login_status.innerHTML ="please enter your email or password"
+          }else{
+            models.user.Login().then(()=>{
+              console.log("login");
+              views.user.loginStatus();
+            });
+          }
         });
     },
     switchtoLogin:function(){
@@ -293,11 +304,11 @@ let controllers = {
   },
 
   init:function(){
-    // controllers.member.checkLogin().then(()=>{
+    controllers.member.checkLogin().then(()=>{
     //   controllers.member.register();
     //   controllers.member.login();
     //   controllers.member.logout();
-    // });
+    });
     controllers.member.register();
     controllers.member.login();
     // controllers.member.logout();
