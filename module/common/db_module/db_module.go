@@ -131,33 +131,37 @@ func UserRegister(db *sql.DB, username, useremail, userpassword string) (bool, e
 }
 
 //user login
-func CheckUserLogin(db *sql.DB, useremail string, userpassword string) ([]string, error) {
-	sel, err := db.Prepare("SELECT user_id, user_name from userinfo where user_email = ? and user_password = ? limit 1")
+func UserLogin(db *sql.DB, useremail string, userpassword string) (bool, error) {
+	sel, err := db.Prepare("SELECT count(*) from userinfo where user_email = ? and user_password = ? limit 1")
 	if err != nil {
 		log.Printf("CheckUserLogin error: %v\n", err)
-		return []string{"0"}, err
+		return false, err
 	}
 	defer sel.Close()
 
 	rows, err := sel.Query(useremail, userpassword)
 	if err != nil {
 		log.Printf("CheckUserLogin query error:%v \n", err)
+		return false, err
 	}
 	defer rows.Close()
-	var userlogininfo []string
-	var user_id string
-	var user_name string
+
+	user_count := 0
 	if rows.Next() {
-		err := rows.Scan(&user_id, &user_name)
+		err := rows.Scan(&user_count)
 		if err != nil {
 			log.Printf("CheckUserLogin rows error: %v \n", err)
-			return []string{"0"}, err
+			return false, err
 		}
 	} else {
-		log.Printf("user info not found\n")
-		return []string{"0"}, err
+		log.Printf("user %s not found\n", useremail)
+		return false, err
 	}
-	userlogininfo = append(userlogininfo, user_id)
-	userlogininfo = append(userlogininfo, user_name)
-	return userlogininfo, nil
+
+	if user_count == 1 {
+		log.Println("user %s found\n", useremail)
+	} else {
+		return false, nil
+	}
+	return true, nil
 }

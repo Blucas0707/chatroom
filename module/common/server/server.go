@@ -24,7 +24,7 @@ func InitServer() *echo.Echo {
 	})
 
 	//api Login
-	server.PUT("/api/user", userlogin)
+	server.PATCH("/api/user", userlogin)
 	//api Register
 	server.POST("/api/user", userregister)
 	// fmt.Println(Server)
@@ -38,10 +38,19 @@ type responseMessage struct {
 }
 
 func userlogin(c echo.Context) error {
-	// Get email and password
-	name := c.FormValue("name")
-	email := c.FormValue("email")
-	return c.String(http.StatusOK, "name:"+name+" email:"+email)
+
+	//get json request
+	json_map := make(map[string]interface{})
+	if err := c.Bind(&json_map); err != nil {
+		return err
+	}
+
+	useremail := fmt.Sprintf("%v", json_map["email"])
+	userpassword := fmt.Sprintf("%v", json_map["password"])
+
+	result := controller.Login(useremail, userpassword)
+	fmt.Println(result)
+	return c.JSONPretty(http.StatusOK, result, "    ")
 }
 
 //TODO: wait api https://app.swaggerhub.com/apis-docs/padax/taipei-trip/1.0.0?loggedInWithGitHub=true#/%E4%BD%BF%E7%94%A8%E8%80%85/patch_api_user
@@ -56,24 +65,7 @@ func userregister(c echo.Context) error {
 	userpassword := fmt.Sprintf("%v", json_map["password"])
 	passwordConfirm := fmt.Sprintf("%v", json_map["repassword"])
 
-	fmt.Println(json_map)
 	result := controller.Register(username, useremail, userpassword, passwordConfirm)
 	fmt.Println(result)
-
-	return c.JSON(http.StatusOK, json_map)
-
-	//Get name, email and password
-	// name := c.FormValue("name")
-	// fmt.Println("name:", name)
-	// email := c.FormValue("email")
-	// password := c.FormValue("password")
-	// passwordConfirm := c.FormValue("password-confirm")
-	// res := new(responseMessage)
-	// if err := c.Bind(res); err != nil {
-	// 	return err
-	// }
-
-	// result := controller.Register(username, useremail, userpassword, passwordConfirm)
-	// fmt.Println(result)
-	// return c.String(http.StatusOK, "name:"+username+" email:"+useremail+" password:"+userpassword+" passwordConfirm:"+passwordConfirm)
+	return c.JSONPretty(http.StatusOK, result, "    ")
 }

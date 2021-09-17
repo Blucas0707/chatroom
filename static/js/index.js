@@ -1,7 +1,7 @@
 let models = {
   user:{
     loginSuccess:null,
-    useGoogleLogin:false,
+    loginResponse:null,
     Login:function(){
       return new Promise((resolve, reject)=>{
         //reset registerSuccess
@@ -23,7 +23,8 @@ let models = {
           return response.json();
         }).then((result)=>{
           // result = JSON.parse(result);
-          if(result.ok){
+          models.user.loginResponse = result.errorMessage;
+          if(result.errorExist === false){
             models.user.loginSuccess = true;
           }else{
             models.user.loginSuccess = false;
@@ -66,6 +67,7 @@ let models = {
       });
     },
     registerSuccess:null,
+    registerResponse:null,
     Register:function(){
       return new Promise((resolve, reject)=>{
         //reset registerSuccess
@@ -92,15 +94,13 @@ let models = {
           return response.json();
         }).then((result)=>{
           console.log(result);
-          console.log(typeof(result));
-          result = JSON.parse(result);
-          if(result.ok){
+          // result = JSON.parse(result);
+          models.user.registerResponse = result.errorMessage;
+          if(result.errorExist === false){
             models.user.registerSuccess = true;
           }else{
             models.user.registerSuccess = false;
           }
-          // console.log(result);
-          // console.log(models.user.registerSuccess);
           resolve(true);
         });
       })
@@ -113,38 +113,43 @@ let views = {
     registerStatus:function(){
       let register_status = document.querySelector(".register-status");
       register_status.style.display = "flex";
+      register_status.style.color = "blue";
       if(models.user.registerSuccess){ // register success
-        register_status.innerHTML = "註冊成功，請登入";
-        register_status.style.color = "blue";
+        register_status.innerHTML = models.user.registerResponse;
 
         //清除註冊資訊
         let formElement = document.querySelector("#register-form");
         formElement.name.value = "";
         formElement.email.value = "";
         formElement.password.value = "";
+        formElement.repassword.value = "";
 
       }else{
         // register fail
-        let formElement = document.querySelector("#register-form");
-        let name = formElement.name.value;
-        let email = formElement.email.value;
-        let password = formElement.password.value;
-        //其中為空
-        if(name == "" || email == "" || password == ""){
-          register_status.innerHTML = "註冊失敗，請確認輸入";
-          register_status.style.color = "red";
-        }
-        else{
-          register_status.innerHTML = "註冊失敗，電子信箱已被註冊";
-          register_status.style.color = "red";
-        }
+        register_status.innerHTML = models.user.registerResponse;
+        register_status.style.color = "red";
+
+
+        // let formElement = document.querySelector("#register-form");
+        // let name = formElement.name.value;
+        // let email = formElement.email.value;
+        // let password = formElement.password.value;
+        // //其中為空
+        // if(name == "" || email == "" || password == ""){
+        //   register_status.innerHTML = "註冊失敗，請確認輸入";
+        //   register_status.style.color = "red";
+        // }
+        // else{
+        //   register_status.innerHTML = models.user.registerResponse;
+        //   register_status.style.color = "red";
+        // }
       }
     },
     loginStatus:function(){
       let login_status = document.querySelector(".login-status");
       login_status.style.display = "flex";
       if(models.user.loginSuccess){ // register success
-        login_status.innerHTML = "登入成功";
+        login_status.innerHTML = models.user.loginResponse;
         login_status.style.color = "blue";
 
         //清除登入資訊
@@ -154,7 +159,7 @@ let views = {
         window.location.replace('/');
 
       }else{ // register fail
-        login_status.innerHTML = "登入失敗，帳號或密碼錯誤";
+        login_status.innerHTML = models.user.loginResponse;
         login_status.style.color = "red";
       }
     },
@@ -218,11 +223,6 @@ let controllers = {
       return new Promise((resolve, reject)=>{
         let logout_btn = document.querySelector("#logout-btn");
         logout_btn.addEventListener("click", ()=>{
-          //Goole logout
-          var auth2 = gapi.auth2.getAuthInstance();
-          auth2.signOut().then(function () {
-            console.log('User signed out.');
-          });
           models.user.Logout().then(()=>{
             views.user.Logout();
             resolve(true);
@@ -236,24 +236,33 @@ let controllers = {
           console.log("click register");
           //判斷規則
           let formElement = document.querySelector("#register-form");
-          let name = formElement.name.value;
+          // let name = formElement.name.value;
           let email = formElement.email.value;
           let password = formElement.password.value;
+          let passwordReconfirm = formElement.repassword.value;
 
           // regular rules
           let emailRule = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
           let emailCheck = (email.search(emailRule) == 0) ? (true):(false);
           // let nameCheck = (name.length >= 4) ? (true):(false);
-          let passwordCheck = (password.length > 6) ? (true):(false);
-          models.user.registerSuccess = emailCheck&&passwordCheck;
-          if(!models.user.registerSuccess){
-            let register_status = document.querySelector(".register-status");
-            register_status.style.display = "flex";
-            register_status.innerHTML = "請確認信箱格式或密碼長度小於6";
+          let passwordRule = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+          let passwordCheck = (password.search(passwordRule) == 0 ) ? (true):(false);
+          // models.user.registerSuccess = emailCheck&&passwordCheck;
+
+          let register_status = document.querySelector(".register-status");
+          register_status.style.display = "flex";
             register_status.style.color = "red";
-          }else{
+          if(!emailCheck){
+            register_status.innerHTML = "please confirm email format";
+          }
+          else if(!passwordCheck){
+            register_status.innerHTML = "please confirm password format";
+          }
+          else if(password !== passwordReconfirm){
+            register_status.innerHTML = "please confirm re-entered password";
+          }
+          else{
             models.user.Register().then(()=>{
-              console.log("tstet");
               views.user.registerStatus();
             });
           }
@@ -291,7 +300,7 @@ let controllers = {
     // });
     controllers.member.register();
     controllers.member.login();
-    controllers.member.logout();
+    // controllers.member.logout();
     controllers.member.switchtoLogin();
     controllers.member.switchtoRegister();
   },
