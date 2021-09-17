@@ -4,7 +4,6 @@ import (
 	"chatroom/module/user/controller"
 	"log"
 	"os"
-	"reflect"
 
 	"fmt"
 	"net/http"
@@ -90,8 +89,7 @@ func userlogininfo(c echo.Context) error {
 	//get session
 	name, email, password := getSession(c)
 	log.Printf("session name:%s,email:%s,password:%s", name, email, password)
-	fmt.Print("type of name:", reflect.TypeOf(name))
-	if name != "" && email != "" && password != "" {
+	if name != "-1" && email != "-1" && password != "-1" {
 
 		userdata := userdata{
 			Username:  name,
@@ -168,14 +166,20 @@ func deleteSession(c echo.Context) error {
 }
 
 func getSession(c echo.Context) (string, string, string) {
-	sess, _ := session.Get("session", c)
-
-	//get session
-	name := fmt.Sprintf("%v", sess.Values["username"])
-	email := fmt.Sprintf("%v", sess.Values["useremail"])
-	password := fmt.Sprintf("%v", sess.Values["userpassword"])
-	// fmt.Println("session:", name, email, password)
-	return name, email, password
+	sess, err := session.Get("session", c)
+	if err != nil {
+		log.Printf("getSession err")
+	}
+	if sess.Values["username"] == nil {
+		return "-1", "-1", "-1"
+	} else {
+		//get session
+		name := fmt.Sprintf("%v", sess.Values["username"])
+		email := fmt.Sprintf("%v", sess.Values["useremail"])
+		password := fmt.Sprintf("%v", sess.Values["userpassword"])
+		// fmt.Println("session:", name, email, password)
+		return name, email, password
+	}
 }
 
 //TODO: wait api https://app.swaggerhub.com/apis-docs/padax/taipei-trip/1.0.0?loggedInWithGitHub=true#/%E4%BD%BF%E7%94%A8%E8%80%85/patch_api_user

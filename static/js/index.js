@@ -43,8 +43,10 @@ let models = {
           return response.json();
         }).then((result)=>{
           console.log(result)
-          if(result != null){
+          if(result.data != null){
             models.user.isLogin = true;
+            models.user.user_name = result.data.username;
+            console.log(models.user.user_name);
             // models.user.user_name = JSON.parse(result).data.name;
           }
           else{
@@ -167,7 +169,21 @@ let views = {
     isLogin:function(){
       //判斷已經登入
       if(models.user.isLogin){
-        ///已登入 顯示chatroom
+        ///已登入 顯示chatroom & logout bar & username
+        let chatroom_box = document.querySelector(".chatroom-main");
+        chatroom_box.style.display = "block";
+
+        let logout_bar = document.querySelector(".logout-bar");
+        logout_bar.style.display = "flex";
+
+        let username = document.querySelector(".logout-bar-username")
+        username.innerHTML = models.user.user_name + ",";
+        //隱藏login register box
+        let login_box = document.querySelector(".login-box");
+        login_box.style.display = "none";
+
+        let register_box = document.querySelector(".register-box");
+        register_box.style.display = "none";
 
       }else{
         //未登入 顯示登入box
@@ -184,10 +200,16 @@ let views = {
       if(models.user.isLogin == null){
         //顯示登入box
         let login_box = document.querySelector(".login-box");
-        login_box.style.display = "flex";
-        //隱藏註冊box
+        login_box.style.display = "block";
+        //隱藏註冊box, chatroom and logout bar
         let register_box = document.querySelector(".register-box");
         register_box.style.display = "none";
+
+        let chatroom_box = document.querySelector(".chatroom-main");
+        chatroom_box.style.display = "none";
+
+        let logout_bar = document.querySelector(".logout-bar");
+        logout_bar.style.display = "none";
       }
     },
     renderLogin:function(){
@@ -222,7 +244,7 @@ let controllers = {
     },
     logout:function(){
       return new Promise((resolve, reject)=>{
-        let logout_btn = document.querySelector("#logout-btn");
+        let logout_btn = document.querySelector(".logout-bar-btn");
         logout_btn.addEventListener("click", ()=>{
           models.user.Logout().then(()=>{
             views.user.Logout();
@@ -305,12 +327,13 @@ let controllers = {
 
   init:function(){
     controllers.member.checkLogin().then(()=>{
-    //   controllers.member.register();
-    //   controllers.member.login();
-    //   controllers.member.logout();
+      controllers.member.register();
+      controllers.member.login();
+      controllers.member.logout();
     });
-    controllers.member.register();
-    controllers.member.login();
+    // controllers.member.register();
+    // controllers.member.login();
+    // controllers.member.logout();
     // controllers.member.logout();
     controllers.member.switchtoLogin();
     controllers.member.switchtoRegister();

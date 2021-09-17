@@ -10,23 +10,25 @@ html {
 
 .login-box {
   display: block;
-  position: fixed;
+  /* position: fixed;
   top:80px;
-  left: calc(50% - 170px);
+  left: calc(50% - 170px); */
   width:340px;
   /* height:275px; */
   background-color: white;
   z-index: 4;
+  margin: 20px auto;
 }
 .register-box {
   display: none;
-  position: fixed;
+  /* position: fixed;
   top:80px;
-  left: calc(50% - 170px);
+  left: calc(50% - 170px); */
   width:340px;
   /* height:275px; */
   background-color: white;
   z-index: 4;
+  margin: 20px auto;
 }
 .login-header, .register-header {
   height:10px;
@@ -122,6 +124,55 @@ html {
 }
 .login-register:hover, .register-login:hover {
   cursor: pointer;
+}
+
+/* logout bar */
+.logout-bar {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  margin: 20px auto;
+}
+
+.logout-bar-username, .logout-bar-btn {
+  font-family: Noto Sans TC;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 13px;
+}
+
+
+/* chatroom */
+.chatroom-main {
+  display: none;
+  width:340px;
+  background-color: white;
+  z-index: 4;
+  margin: 20px auto;
+}
+
+.chatroom-list,.chatroom-create {
+  margin: auto;
+  padding: 10px 0;
+  font-family: Noto Sans TC;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 13px;
+  text-align: center;
+}
+
+.chatroom-display-box {
+  display: flex;
+}
+
+.chatroom-name-list, .chatroom-leader-list, .chatroom-click-list,.chatroom-page-previous,.chatroom-page-number, .chatroom-page-next {
+  margin: auto;
+}
+
+.chatroom-page-select-bar {
+  display: flex;
 }
 
 @media (min-width: 1200px) {
