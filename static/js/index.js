@@ -74,10 +74,12 @@ let models = {
         let name = formElement.name.value;
         let email = formElement.email.value;
         let password = formElement.password.value;
+        let repassword = formElement.repassword.value;
         let data = {
             name:name.toString(),
             email:email.toString(),
-            password:password.toString()
+            password:password.toString(),
+            repassword:repassword.toString()
           };
         console.log(data);
         return fetch("/api/user",{
@@ -90,6 +92,7 @@ let models = {
           return response.json();
         }).then((result)=>{
           console.log(result);
+          console.log(typeof(result));
           result = JSON.parse(result);
           if(result.ok){
             models.user.registerSuccess = true;

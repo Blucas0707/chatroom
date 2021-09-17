@@ -51,33 +51,29 @@ func userregister(c echo.Context) error {
 	if err := c.Bind(&json_map); err != nil {
 		return err
 	}
-	json_name := fmt.Sprintf("%v", json_map["name"])
-	fmt.Println(json_name)
-	return c.String(http.StatusOK, json_name)
+	username := fmt.Sprintf("%v", json_map["name"])
+	useremail := fmt.Sprintf("%v", json_map["email"])
+	userpassword := fmt.Sprintf("%v", json_map["password"])
+	passwordConfirm := fmt.Sprintf("%v", json_map["repassword"])
 
-	// err := json.NewDecoder(c.Request().Body).Decode(&json_map)
-	// if err != nil {
-	// 	return err
-	// } else {
-	// 	//json_map has the JSON Payload decoded into a map
-	// 	json_name := json_map["name"]
-	// 	json_email := json_map["email"]
-	// 	json_password := json_map["password"]
-	// 	fmt.Printf(json_name, json_email, json_password)
-	// }
+	fmt.Println(json_map)
+	result := controller.Register(username, useremail, userpassword, passwordConfirm)
+	fmt.Println(result)
+
+	return c.JSON(http.StatusOK, json_map)
 
 	//Get name, email and password
-	name := c.FormValue("name")
-	fmt.Println("name:", name)
-	email := c.FormValue("email")
-	password := c.FormValue("password")
-	passwordConfirm := c.FormValue("password-confirm")
-	res := new(responseMessage)
-	if err := c.Bind(res); err != nil {
-		return err
-	}
+	// name := c.FormValue("name")
+	// fmt.Println("name:", name)
+	// email := c.FormValue("email")
+	// password := c.FormValue("password")
+	// passwordConfirm := c.FormValue("password-confirm")
+	// res := new(responseMessage)
+	// if err := c.Bind(res); err != nil {
+	// 	return err
+	// }
 
-	result := controller.Register(name, email, password, passwordConfirm)
-	fmt.Println(result)
-	return c.String(http.StatusOK, "name:"+name+" email:"+email+" password:"+password+" passwordConfirm:"+passwordConfirm)
+	// result := controller.Register(username, useremail, userpassword, passwordConfirm)
+	// fmt.Println(result)
+	// return c.String(http.StatusOK, "name:"+username+" email:"+useremail+" password:"+userpassword+" passwordConfirm:"+passwordConfirm)
 }

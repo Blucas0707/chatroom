@@ -55,7 +55,7 @@ html {
 .login-cancel:hover , .register-cancel:hover, .nav-schedule:hover {
   cursor: pointer;
 }
-.login-email, .login-password,.register-name, .register-email, .register-password  {
+.login-box-item, .register-box-item  {
   margin:0 15px 10px;
   border: 1px solid #CCCCCC;
   box-sizing: border-box;

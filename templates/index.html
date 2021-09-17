@@ -15,10 +15,10 @@
   <main class="main">
     <div class="login-box">
       <div class="login-header"></div>
-      <div class="login-title"> 登入會員帳號 <img src="/static/img/icon_close.svg" alt="icon_close Error" class="login-cancel"> </div> <!-- <form id="login-form" method="PATCH" > -->
+      <div class="login-title"> 登入會員帳號 </div>
       <div class="login-input-box">
-        <div class="g-signin2" onclick="ClickLogin()" data-onsuccess="onSignIn" data-theme="dark" data-prompt="select_account"></div> <input type="text" name="email" placeholder="輸入電子信箱" class="login-email"> <input type="password" name="password"
-          placeholder="輸入密碼" class="login-password">
+        <input type="text" name="email" placeholder="輸入電子信箱" class="login-email login-box-item"> 
+        <input type="password" name="password" placeholder="輸入密碼" class="login-password login-box-item">
       </div> 
       <div class="login-btn">登入帳戶</div>
       <div class="login-status"></div>
@@ -27,9 +27,12 @@
     <!-- register box -->
     <div class="register-box">
       <div class="register-header"></div>
-      <div class="register-title"> 註冊會員帳號 <img src="/static/img/icon_close.svg" alt="icon_close Error" class="register-cancel"> </div>
-      <form id="register-form" method="POST"> <input type="text" name="name" placeholder="輸入姓名" class="register-name" required> <input type="text" name="email" placeholder="輸入電子信箱" class="register-email" required> <input type="password" name="password"
-          placeholder="輸入密碼" class="register-password" required> 
+      <div class="register-title"> 註冊會員帳號 </div>
+      <form id="register-form" method="POST"> 
+        <input type="text" name="name" placeholder="輸入姓名" class="register-name register-box-item" required> 
+        <input type="text" name="email" placeholder="輸入電子信箱" class="register-email register-box-item" required> 
+        <input type="password" name="password" placeholder="輸入密碼" class="register-password register-box-item" required> 
+        <input type="password" name="repassword" placeholder="再次輸入密碼" class="register-password-confirm register-box-item" required> 
       </form>
       <div class="register-btn">註冊新帳戶</div>
       <div class="register-status"></div>
