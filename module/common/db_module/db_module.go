@@ -224,7 +224,7 @@ func CreateChatRoom(db *sql.DB, chatroomName, owner string) (bool, error) {
 
 // get Room list
 func GetRoomList(db *sql.DB, page int) ([]string, []string) {
-	sel, err := db.Prepare("select name,owner from chatroom_list order by id ASC limit ?,10")
+	sel, err := db.Prepare("select name,owner from chatroom_list order by id DESC limit ?,10")
 	if err != nil {
 		log.Println("sel error:", err)
 	}

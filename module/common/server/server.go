@@ -16,6 +16,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// TODO: wait websocket: https://dev.to/jeroendk/building-a-simple-chat-application-with-websockets-in-go-and-vue-js-gao
 func InitServer() *echo.Echo {
 	//InitServer
 	server := echo.New()

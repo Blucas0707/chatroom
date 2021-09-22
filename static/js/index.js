@@ -317,7 +317,7 @@ let views = {
         let newManiDiv = document.createElement("div");
         newManiDiv.textContent = "Enter";
         newManiDiv.className = "Mani-item";
-        newManiDiv.setAttribute("id","Mani"+(i+1))
+        newManiDiv.setAttribute("id",roomName)
         ManiParent.appendChild(newManiDiv);
       }
       // rander page

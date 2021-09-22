@@ -182,7 +182,7 @@ html {
   display: flex;
 }
 
-.chatroom-create:hover,.Mani-item:hover {
+.chatroom-create:hover,.Mani-item:hover,.logout-bar-btn:hover {
   cursor: pointer;
   color: blue;
 }
