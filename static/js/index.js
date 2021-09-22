@@ -246,6 +246,9 @@ let views = {
 
         let logout_bar = document.querySelector(".logout-bar");
         logout_bar.style.display = "none";
+        // hide create room box 
+        let create_box = document.querySelector(".chatroom-create-main");
+        create_box.style.display = "none";
       }
     },
     renderLogin:function(){

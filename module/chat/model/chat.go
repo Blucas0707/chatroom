@@ -131,6 +131,6 @@ func GetRoomData(page int) ChatroomList {
 			Owner: owners[i],
 		})
 	}
-	fmt.Println(roomlist)
+	// fmt.Println(roomlist)
 	return roomlist
 }

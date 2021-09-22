@@ -206,24 +206,31 @@ func userregister(c echo.Context) error {
 }
 
 func createRoom(c echo.Context) error {
+	owner, _, _ := getSession(c)
+	if owner == "-1" {
+		return c.String(http.StatusOK, "please login first")
+	}
 	//get json request
 	json_map := make(map[string]interface{})
 	if err := c.Bind(&json_map); err != nil {
 		return err
 	}
 	chatroomName := fmt.Sprintf("%v", json_map["roomname"])
-	owner, _, _ := getSession(c)
 	result := chat.CreateRoom(chatroomName, owner)
 	fmt.Println(result)
 	return c.JSONPretty(http.StatusOK, result, "    ")
 }
 
 func getRoomList(c echo.Context) error {
-	fmt.Println("getRoomList")
+	owner, _, _ := getSession(c)
+	if owner == "-1" {
+		return c.String(http.StatusOK, "please login first")
+	}
+	// fmt.Println("getRoomList")
 	page := c.QueryParam("page")
-	fmt.Println(page)
+	// fmt.Println(page)
 	pageInt, _ := strconv.Atoi(page)
 	result := chat.GetRoom(pageInt)
-	fmt.Println(result)
+	// fmt.Println(result)
 	return c.JSONPretty(http.StatusOK, result, "    ")
 }
