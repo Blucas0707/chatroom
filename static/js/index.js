@@ -109,6 +109,56 @@ let models = {
       })
     },
   },
+  room:{
+    createStatus:null,
+    createRespsonse:null,
+    createRoom:function(){
+      return new Promise((resolve, reject)=>{
+        let formElement = document.querySelector("#create-form");
+        let chatroomname = formElement.roomname.value;
+        let data = {
+          roomname:chatroomname.toString(),
+          };
+        console.log(data);
+        return fetch("/api/room",{
+          method:"POST",
+          headers: {
+            "Content-type":"application/json",
+          },
+          body: JSON.stringify(data)
+        }).then((response)=>{
+          return response.json();
+        }).then((result)=>{
+          console.log(result);
+          // result = JSON.parse(result);
+          if(result.errorExist === false){
+            models.room.createStatus = true;
+          }else{
+            models.room.createStatus = false;
+          }
+          models.room.createRespsonse = result.errorMessage;
+          resolve(true);
+        });
+      })
+    },
+    page:1,
+    AllRoomList:null,
+    getRoomList:function(){
+      return new Promise((resolve, reject)=>{
+        let url = "/api/rooms?page=" + (models.room.page-1);
+        console.log(url);
+        return fetch(url,{
+          method:"GET"
+        }).then((response)=>{
+          return response.json();
+        }).then((result)=>{
+          console.log(result);
+          models.room.AllRoomList = result.data;
+          resolve(true);
+        });
+      });
+    },
+  }
 };
 
 let views = {
@@ -132,20 +182,6 @@ let views = {
         register_status.innerHTML = models.user.registerResponse;
         register_status.style.color = "red";
 
-
-        // let formElement = document.querySelector("#register-form");
-        // let name = formElement.name.value;
-        // let email = formElement.email.value;
-        // let password = formElement.password.value;
-        // //其中為空
-        // if(name == "" || email == "" || password == ""){
-        //   register_status.innerHTML = "註冊失敗，請確認輸入";
-        //   register_status.style.color = "red";
-        // }
-        // else{
-        //   register_status.innerHTML = models.user.registerResponse;
-        //   register_status.style.color = "red";
-        // }
       }
     },
     loginStatus:function(){
@@ -230,9 +266,123 @@ let views = {
       
     }
   },
+  room:{
+    showCreateRoomBox:function(){
+      // hide chatroom list
+      document.querySelector(".chatroom-main").style.display = "none";
+      // show create box
+      document.querySelector(".chatroom-create-main").style.display = "block";
+    },
+    createRoom:function(){
+      // show status 
+      document.querySelector(".create-status").innerHTML = models.room.createRespsonse;
+      if(models.room.createStatus){
+        document.querySelector(".create-status").style.color = "blue";
+      }else{
+        document.querySelector(".create-status").style.color = "red";
+      }
+    },
+    renderRoomList:function(){
+      let roomParent = document.querySelector(".chatroom-name-list-title");
+      let ownerParent = document.querySelector(".chatroom-leader-list-title");
+      let ManiParent = document.querySelector(".chatroom-click-list-title");
+      //clear div
+      while(roomParent.hasChildNodes()){
+        roomParent.removeChild(roomParent.firstChild)
+      }
+      while(ownerParent.hasChildNodes()){
+        ownerParent.removeChild(ownerParent.firstChild)
+      }
+      while(ManiParent.hasChildNodes()){
+        ManiParent.removeChild(ManiParent.firstChild)
+      }
+      // Add div
+      for(let i = 0; i < models.room.AllRoomList.length;i++) {
+        let roomName = models.room.AllRoomList[i].chatroomName;
+        let ownerName = models.room.AllRoomList[i].owner;
+        // Add Room 
+        let newRoomDiv = document.createElement("div");
+        newRoomDiv.textContent = roomName;
+        newRoomDiv.className = "room-" + (i+1);
+        roomParent.appendChild(newRoomDiv);
+        //Add Owner
+        let newOwnerDiv = document.createElement("div");
+        newOwnerDiv.textContent = ownerName;
+        newOwnerDiv.className = "owner-" + (i+1);
+        ownerParent.appendChild(newOwnerDiv);
+        //Add Manipulate
+        let newManiDiv = document.createElement("div");
+        newManiDiv.textContent = "Enter";
+        newManiDiv.className = "Mani-item";
+        newManiDiv.setAttribute("id","Mani"+(i+1))
+        ManiParent.appendChild(newManiDiv);
+      }
+      // rander page
+      page = document.querySelector(".chatroom-page-number");
+      page.innerHTML = models.room.page;
+    }
+  },
 };
 
 let controllers = {
+  room:{
+    showCreateRoomBox:function(){
+      let create_btn = document.querySelector(".chatroom-create");
+      create_btn.addEventListener("click", ()=>{
+        views.room.showCreateRoomBox();
+      }
+      )
+    },
+    backtoRoomList:function(){
+      let backtoRoomList_btn = document.querySelector(".back-to-chatroom-list-btn");
+      backtoRoomList_btn.addEventListener("click",()=>{
+        window.location.reload();
+      })
+    },
+    createRoom:function(){
+      let create_btn = document.querySelector(".room-create-btn");
+      create_btn.addEventListener("click",()=>{
+        console.log("click create")
+        let chatroom = document.querySelector("#create-form").roomname.value;
+        console.log(chatroom);
+        if( chatroom.length < 4){
+          // show error alert 
+          let create_status = document.querySelector(".create-status");
+          create_status.innerHTML = "name length < 4";
+          create_status.style.color = "red";
+
+        }else {
+          models.room.createRoom().then(()=>{
+            views.room.createRoom();
+          })
+        }
+      })
+    },
+    getRoomList:function(){
+      models.room.getRoomList().then(()=>{
+        views.room.renderRoomList();
+      })
+    },
+    nextPage:function(){
+      let nextPage = document.querySelector(".chatroom-page-next");
+      nextPage.addEventListener("click",()=>{
+        if(models.room.AllRoomList.length !== 0){
+          models.room.page += 1;
+        }
+        this.getRoomList();
+      })
+    },
+    prevPage:function(){
+      let prevPage = document.querySelector(".chatroom-page-previous");
+      prevPage.addEventListener("click",()=>{
+        models.room.page -= 1;
+        if(models.room.page < 1){
+          models.room.page = 1;
+        }
+        this.getRoomList();
+      })
+    },
+  },
   member: {
     checkLogin:function(){
       return new Promise((resolve, reject)=>{
@@ -330,6 +480,12 @@ let controllers = {
       controllers.member.register();
       controllers.member.login();
       controllers.member.logout();
+      controllers.room.showCreateRoomBox();
+      controllers.room.backtoRoomList();
+      controllers.room.createRoom();
+      controllers.room.getRoomList();
+      controllers.room.nextPage();
+      controllers.room.prevPage();
     });
     // controllers.member.register();
     // controllers.member.login();

@@ -1,9 +1,11 @@
 package server
 
 import (
+	chat "chatroom/module/chat/controller"
 	"chatroom/module/user/controller"
 	"log"
 	"os"
+	"strconv"
 
 	"fmt"
 	"net/http"
@@ -39,6 +41,11 @@ func InitServer() *echo.Echo {
 	server.GET("/api/user", userlogininfo)
 	//api Logout
 	server.DELETE("/api/user", userlogout)
+
+	//api createRoom
+	server.POST("/api/room", createRoom)
+	//api getRoomList
+	server.GET("/api/rooms", getRoomList)
 
 	// fmt.Println(Server)
 	server.Logger.Fatal(server.Start(":1323"))
@@ -193,8 +200,30 @@ func userregister(c echo.Context) error {
 	useremail := fmt.Sprintf("%v", json_map["email"])
 	userpassword := fmt.Sprintf("%v", json_map["password"])
 	passwordConfirm := fmt.Sprintf("%v", json_map["repassword"])
-
 	result := controller.Register(username, useremail, userpassword, passwordConfirm)
+	fmt.Println(result)
+	return c.JSONPretty(http.StatusOK, result, "    ")
+}
+
+func createRoom(c echo.Context) error {
+	//get json request
+	json_map := make(map[string]interface{})
+	if err := c.Bind(&json_map); err != nil {
+		return err
+	}
+	chatroomName := fmt.Sprintf("%v", json_map["roomname"])
+	owner, _, _ := getSession(c)
+	result := chat.CreateRoom(chatroomName, owner)
+	fmt.Println(result)
+	return c.JSONPretty(http.StatusOK, result, "    ")
+}
+
+func getRoomList(c echo.Context) error {
+	fmt.Println("getRoomList")
+	page := c.QueryParam("page")
+	fmt.Println(page)
+	pageInt, _ := strconv.Atoi(page)
+	result := chat.GetRoom(pageInt)
 	fmt.Println(result)
 	return c.JSONPretty(http.StatusOK, result, "    ")
 }

@@ -166,3 +166,88 @@ func UserLogin(db *sql.DB, useremail string, userpassword string) (int, string, 
 	}
 	return user_count, user_name, nil
 }
+
+// chatroom
+// check room name is not existed
+func CheckRoomNameisNotExisted(db *sql.DB, name string) (bool, error) {
+	sel, err := db.Prepare("select count(*) from chatroom_list  where name  = ?")
+	if err != nil {
+		log.Println("sel error:", err)
+		return false, err
+	}
+	defer sel.Close()
+
+	rows, err := sel.Query(name)
+	if CheckError(err) {
+		return false, err
+	}
+
+	defer rows.Close()
+	var count int
+	if rows.Next() {
+		err := rows.Scan(&count)
+		if CheckError(err) {
+			return false, err
+		}
+		fmt.Println("count:", count)
+	} else {
+		log.Printf("room name %s not found\n", name)
+	}
+	if count == 0 {
+		return true, nil
+	} else {
+		return false, nil
+	}
+}
+
+//user register
+func CreateChatRoom(db *sql.DB, chatroomName, owner string) (bool, error) {
+	ins, err := db.Prepare("insert into chatroom_list (name , owner) values(?, ?)")
+	if err != nil {
+		log.Println("sel error:", err)
+		return false, err
+	}
+	defer ins.Close()
+
+	result, err := ins.Exec(chatroomName, owner)
+	if CheckError(err) {
+		return false, err
+	}
+	defer ins.Close()
+	id, err := result.LastInsertId()
+	if CheckError(err) {
+		return false, err
+	}
+	fmt.Printf("LastInsertId: %d\n", id)
+	return true, nil
+}
+
+// get Room list
+func GetRoomList(db *sql.DB, page int) ([]string, []string) {
+	sel, err := db.Prepare("select name,owner from chatroom_list order by id ASC limit ?,10")
+	if err != nil {
+		log.Println("sel error:", err)
+	}
+	defer sel.Close()
+	page = page * 10
+	rows, err := sel.Query(page)
+	if err != nil {
+		log.Println("sel error:", err)
+	}
+
+	defer rows.Close()
+	var chatrooms []string
+	var owners []string
+
+	for rows.Next() {
+		var room, owner string
+		if err := rows.Scan(&room, &owner); err != nil {
+			log.Fatal(err)
+		} else {
+			chatrooms = append(chatrooms, room)
+			owners = append(owners, owner)
+		}
+
+	}
+	return chatrooms, owners
+}

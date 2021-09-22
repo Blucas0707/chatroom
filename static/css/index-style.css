@@ -147,9 +147,11 @@ html {
 .chatroom-main {
   display: none;
   width:340px;
-  background-color: white;
+  /* background-color: white; */
   z-index: 4;
   margin: 20px auto;
+  background: #c6ffff;
+  border-radius: 5px;
 }
 
 .chatroom-list,.chatroom-create {
@@ -161,6 +163,11 @@ html {
   font-size: 16px;
   line-height: 13px;
   text-align: center;
+  /* border-bottom-style: solid; */
+}
+
+.chatroom-list{
+  border-bottom-style: solid;
 }
 
 .chatroom-display-box {
@@ -173,6 +180,79 @@ html {
 
 .chatroom-page-select-bar {
   display: flex;
+}
+
+.chatroom-create:hover,.Mani-item:hover {
+  cursor: pointer;
+  color: blue;
+}
+
+.chatroom-page-select-bar {
+  border-top-style: solid;
+}
+
+
+
+/* create chatroom */
+.chatroom-create-main {
+  display: none;
+  width:340px;
+  /* background-color: white; */
+  z-index: 4;
+  margin: 20px auto;
+  background: #f5f3db;
+  border-radius: 5px;
+}
+
+
+
+.create-box,.create-title {
+  margin: auto;
+  padding: 10px 0;
+  font-family: Noto Sans TC;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 13px;
+  text-align: center;
+  border-bottom-style: solid;
+}
+
+.create-function-list {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+  padding: 10px 0;
+  font-family: Noto Sans TC;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 13px;
+  text-align: center;
+}
+
+.back-to-chatroom-list-btn, .room-create-btn {
+  margin: 0 20px;
+}
+
+.back-to-chatroom-list-btn:hover, .room-create-btn:hover,.chatroom-page-previous:hover,.chatroom-page-next:hover {
+  cursor: pointer;
+  color: blue;
+}
+
+.create-status {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+  padding: 10px 0;
+  font-family: Noto Sans TC;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 13px;
+  text-align: center;
 }
 
 @media (min-width: 1200px) {

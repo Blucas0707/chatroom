@@ -50,10 +50,12 @@
       <div class="chatroom-create">建立新房間</div>
       <div class="chatroom-display-box">
         <div class="chatroom-name-list">
-          <div class="chatroom-name-list-title">聊天室名稱</div>
+          <div class="chatroom-name-list-title">聊天室名稱
+          </div>
         </div>
         <div class="chatroom-leader-list">
-          <div class="chatroom-leader-list-title">室長</div>
+          <div class="chatroom-leader-list-title">室長
+          </div>
         </div>
         <div class="chatroom-click-list">
           <div class="chatroom-click-list-title">操作</div>
@@ -61,9 +63,23 @@
       </div>
       <div class="chatroom-page-select-bar">
         <div class="chatroom-page-previous">上一頁</div>
-        <div class="chatroom-page-number">1</div>
+        <div class="chatroom-page-number"></div>
         <div class="chatroom-page-next">下一頁</div>
       </div>
+    </div>
+    <!-- create room -->
+    <div class="chatroom-create-main">
+      <div class="create-title">建立新房間</div>
+      <div class="create-box">
+        <form id="create-form">
+          聊天室名稱: <input type="text" name="roomname" placeholder="輸入chatroom name" class="create-room-name" required> 
+        </form>
+      </div>
+      <div class="create-function-list">
+        <div class="back-to-chatroom-list-btn">返回</div>
+        <div class="room-create-btn">建立</div>
+      </div>
+      <div class="create-status"></div>
     </div>
   </main>
 
