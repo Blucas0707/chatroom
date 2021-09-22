@@ -17,6 +17,7 @@ import (
 )
 
 // TODO: wait websocket: https://dev.to/jeroendk/building-a-simple-chat-application-with-websockets-in-go-and-vue-js-gao
+//https://dev.to/jeroendk/multi-room-chat-application-with-websockets-in-go-and-vue-js-part-2-3la8
 func InitServer() *echo.Echo {
 	//InitServer
 	server := echo.New()
