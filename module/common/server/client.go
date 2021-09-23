@@ -172,6 +172,7 @@ func (client *Client) writePump() {
 			if err != nil {
 				return
 			}
+			fmt.Println("client.go write: ", string(message))
 			w.Write(message)
 
 			// Add queued chat messages to the current websocket message.

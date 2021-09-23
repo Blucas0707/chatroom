@@ -30,6 +30,38 @@ func NewRoomServer() *RoomServer {
 	}
 }
 
+func (roomserver *RoomServer) Run() {
+	for {
+		select {
+		case client := <-roomserver.register:
+			roomserver.registerClient(client)
+		case client := <-roomserver.unregister:
+			roomserver.unregisterClient(client)
+		case message := <-roomserver.broadcast:
+			roomserver.broadcastToClients(message)
+		}
+
+	}
+}
+
+func (roomserver *RoomServer) registerClient(client *Client) {
+	// roomserver.notifyClientJoined(client)
+	roomserver.clients[client] = true
+}
+
+func (roomserver *RoomServer) unregisterClient(client *Client) {
+	if _, ok := roomserver.clients[client]; ok {
+		delete(roomserver.clients, client)
+		// roomserver.notifyClientLeft(client)
+	}
+}
+
+func (servroomserverer *RoomServer) broadcastToClients(message []byte) {
+	for client := range servroomserverer.clients {
+		client.send <- message
+	}
+}
+
 func (roomserver *RoomServer) findRoombyName(name string) *Room {
 	var foundRoom *Room
 	for room := range roomserver.rooms {

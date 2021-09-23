@@ -52,7 +52,7 @@ func InitServer() *echo.Echo {
 	//chatroom
 
 	roomserver := NewRoomServer()
-	// go roomserver.CreateRoom("")
+	go roomserver.Run()
 	server.GET("/chatroom", func(c echo.Context) error {
 		return c.File("templates/chatroom.html")
 	})
@@ -60,7 +60,7 @@ func InitServer() *echo.Echo {
 		roomName := c.QueryParam("room")
 		fmt.Println("server.go roomname: ", roomName)
 		if len(roomName) != 0 {
-			go roomserver.CreateRoom(roomName)
+			// go roomserver.CreateRoom(roomName)
 			serveWs(roomserver, c)
 		} else {
 			log.Println("No room name")
