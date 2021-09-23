@@ -5,7 +5,7 @@
 package server
 
 import (
-	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -40,13 +40,81 @@ var upgrader = websocket.Upgrader{
 
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
-	hub *Hub
-
+	// roomserver
+	roomserver *RoomServer
 	// The websocket connection.
 	conn *websocket.Conn
 
 	// Buffered channel of outbound messages.
 	send chan []byte
+
+	// room which client is in
+	rooms map[*Room]bool
+
+	// client name
+	Name string `json:name`
+}
+
+func newClient(conn *websocket.Conn, roomserver *RoomServer, name string) *Client {
+	return &Client{
+		roomserver: roomserver,
+		conn:       conn,
+		send:       make(chan []byte, 256),
+		rooms:      make(map[*Room]bool),
+		Name:       name,
+	}
+}
+
+func (client *Client) GetName() string {
+	return client.Name
+}
+
+func (client *Client) disconnect() {
+	client.roomserver.unregister <- client
+	for room := range client.rooms {
+		room.unregister <- client
+	}
+}
+
+func (client *Client) handleNewMessage(jsonMessage []byte) {
+	var message Message
+	if err := json.Unmarshal(jsonMessage, &message); err != nil {
+		log.Printf("Error on unmarshal JSON message %s", err)
+	}
+
+	// Add client to message sender
+	message.Sender = client
+	switch message.Action {
+	case SendMessageAction:
+		roomName := message.Target
+		if room := client.roomserver.findRoombyName(roomName); room != nil {
+			room.broadcast <- &message
+		}
+	case JoinRoomAction:
+		client.handleJoinRoomMessage(message)
+	case LeaveRoomAction:
+		client.handleLeaveRoomMessage(message)
+
+	}
+}
+
+func (client *Client) handleJoinRoomMessage(message Message) {
+	roomName := message.Target
+	room := client.roomserver.findRoombyName(roomName)
+	if room == nil {
+		room = client.roomserver.CreateRoom(roomName)
+	}
+	client.rooms[room] = true
+	room.register <- client
+}
+
+func (client *Client) handleLeaveRoomMessage(message Message) {
+	roomName := message.Target
+	room := client.roomserver.findRoombyName(roomName)
+	if _, ok := client.rooms[room]; ok {
+		delete(client.rooms, room)
+	}
+	room.unregister <- client
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -54,25 +122,27 @@ type Client struct {
 // The application runs readPump in a per-connection goroutine. The application
 // ensures that there is at most one reader on a connection by executing all
 // reads from this goroutine.
-func (c *Client) readPump() {
+func (client *Client) readPump() {
+	fmt.Println("client.go readPump starting")
 	defer func() {
-		c.hub.unregister <- c
-		c.conn.Close()
+		client.roomserver.unregister <- client
+		client.conn.Close()
 	}()
-	c.conn.SetReadLimit(maxMessageSize)
-	c.conn.SetReadDeadline(time.Now().Add(pongWait))
-	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	client.conn.SetReadLimit(maxMessageSize)
+	client.conn.SetReadDeadline(time.Now().Add(pongWait))
+	client.conn.SetPongHandler(func(string) error { client.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
-		_, message, err := c.conn.ReadMessage()
+		_, jsonMessage, err := client.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
 			}
 			break
 		}
-		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		// fmt.Println(string(message))
-		c.hub.broadcast <- message
+		// message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+		// fmt.Println("read msg: ", string(message))
+		// c.roomserver.broadcast <- message
+		client.handleNewMessage(jsonMessage)
 	}
 }
 
@@ -81,41 +151,42 @@ func (c *Client) readPump() {
 // A goroutine running writePump is started for each connection. The
 // application ensures that there is at most one writer to a connection by
 // executing all writes from this goroutine.
-func (c *Client) writePump() {
+func (client *Client) writePump() {
+	fmt.Println("client.go writePump starting")
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
-		c.conn.Close()
+		client.conn.Close()
 	}()
 	for {
 		select {
-		case message, ok := <-c.send:
-			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+		case message, ok := <-client.send:
+			client.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
 				// The hub closed the channel.
-				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				client.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 
-			w, err := c.conn.NextWriter(websocket.TextMessage)
+			w, err := client.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
 			}
 			w.Write(message)
 
 			// Add queued chat messages to the current websocket message.
-			n := len(c.send)
+			n := len(client.send)
 			for i := 0; i < n; i++ {
 				w.Write(newline)
-				w.Write(<-c.send)
+				w.Write(<-client.send)
 			}
 
 			if err := w.Close(); err != nil {
 				return
 			}
 		case <-ticker.C:
-			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+			client.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err := client.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
 		}
@@ -123,22 +194,27 @@ func (c *Client) writePump() {
 }
 
 // serveWs handles websocket requests from the peer.
-func serveWs(hub *Hub, c echo.Context) error {
+func serveWs(roomserver *RoomServer, c echo.Context) {
+	clientName, _, _ := getSession(c)
+	if len(clientName) == 0 {
+		log.Println("clientName is missing")
+		return
+	}
+
 	conn, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		log.Println(err)
-		return err
+		return
 	}
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
-	fmt.Println("New Client joined the hub!")
-	fmt.Println(client)
-	client.hub.register <- client
+	// client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+	client := newClient(conn, roomserver, clientName)
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.
 	go client.writePump()
 	go client.readPump()
-	return nil
+	roomserver.register <- client
+	fmt.Printf("New Client %s joined the hub!\n", client.Name)
 }
 
 func hello(c echo.Context) error {

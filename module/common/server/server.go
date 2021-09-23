@@ -51,13 +51,21 @@ func InitServer() *echo.Echo {
 
 	//chatroom
 
-	hub := newHub()
-	go hub.run()
+	roomserver := NewRoomServer()
+	// go roomserver.CreateRoom("")
 	server.GET("/chatroom", func(c echo.Context) error {
 		return c.File("templates/chatroom.html")
 	})
 	server.GET("/chatroom/ws", func(c echo.Context) error {
-		return serveWs(hub, c)
+		roomName := c.QueryParam("room")
+		fmt.Println("server.go roomname: ", roomName)
+		if len(roomName) != 0 {
+			go roomserver.CreateRoom(roomName)
+			serveWs(roomserver, c)
+		} else {
+			log.Println("No room name")
+		}
+		return nil
 	})
 	// server.GET("/chatroom/ws", hello)
 	// fmt.Println(Server)
