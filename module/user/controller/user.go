@@ -1,9 +1,9 @@
 package controller
 
 import (
-	. "chatroom/module/common/db_module"
+	. "main/module/common/db_module"
 	// "chatroom/module/common/user/model"
-	"chatroom/module/user/model"
+	"main/module/user/model"
 )
 
 //Before register, check if name and email are taken

@@ -286,9 +286,9 @@ let views = {
       }
     },
     renderRoomList:function(){
-      let roomParent = document.querySelector(".chatroom-name-list-title");
-      let ownerParent = document.querySelector(".chatroom-leader-list-title");
-      let ManiParent = document.querySelector(".chatroom-click-list-title");
+      let roomParent = document.querySelector(".chatroom-name-list");
+      let ownerParent = document.querySelector(".chatroom-leader-list");
+      let ManiParent = document.querySelector(".chatroom-click-list");
       //clear div
       while(roomParent.hasChildNodes()){
         roomParent.removeChild(roomParent.firstChild)
@@ -364,6 +364,7 @@ let controllers = {
     getRoomList:function(){
       models.room.getRoomList().then(()=>{
         views.room.renderRoomList();
+        this.EnterRoom();
       })
     },
     nextPage:function(){
@@ -384,6 +385,20 @@ let controllers = {
         }
         this.getRoomList();
       })
+    },
+    EnterRoom: function(){
+      let chatroomClickList = document.querySelector(".chatroom-click-list");
+      // let chatroomNameList = document.querySelector(".chatroom-name-list");
+      for(let i = 0 ; i < chatroomClickList.childNodes.length; i++) {
+        // let roomName = chatroomNameList.childNodes[i].
+        let childNode = chatroomClickList.childNodes[i];
+        childNode.addEventListener("click",()=>{
+          // redirect to chatroom
+          let roomName = childNode.id;
+          let url = "/chatroom?room=" + roomName;
+          window.location.href = url;
+        })
+      } 
     },
   },
   member: {

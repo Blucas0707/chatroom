@@ -29,19 +29,14 @@ window.onload = function () {
     };
 
     if (window["WebSocket"]) {
-        wsUrl = "ws://" + document.location.host + "/chatroom/ws?room=123";
-        console.log(wsUrl);
-        conn = new WebSocket(wsUrl);
-        conn.onopen = function (evt){
-            alert("Room connected!")
-        };
+        conn = new WebSocket("ws://" + document.location.host + "/ws");
         conn.onclose = function (evt) {
             var item = document.createElement("div");
             item.innerHTML = "<b>Connection closed.</b>";
             appendLog(item);
         };
         conn.onmessage = function (evt) {
-            var messages = evt.data.split('\r?\n');
+            var messages = evt.data.split('\n');
             for (var i = 0; i < messages.length; i++) {
                 var item = document.createElement("div");
                 item.innerText = messages[i];

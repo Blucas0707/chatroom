@@ -1,10 +1,10 @@
 package db_module
 
 import (
-	. "chatroom/module/common/error"
 	"database/sql"
 	"fmt"
 	"log"
+	. "main/module/common/error"
 	"os"
 	"time"
 

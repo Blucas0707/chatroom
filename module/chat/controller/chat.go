@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"chatroom/module/chat/model"
-	. "chatroom/module/common/db_module"
+	"main/module/chat/model"
+	. "main/module/common/db_module"
 )
 
 func CreateRoom(chatroomName, owner string) model.Message {

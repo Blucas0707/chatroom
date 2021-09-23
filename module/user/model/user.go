@@ -1,10 +1,10 @@
 package model
 
 import (
-	"chatroom/module/common/db_module"
-	. "chatroom/module/common/db_module"
 	"database/sql"
 	"fmt"
+	"main/module/common/db_module"
+	. "main/module/common/db_module"
 	"regexp"
 	"sync"
 	"unicode"

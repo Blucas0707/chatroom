@@ -1,9 +1,9 @@
 package server
 
 import (
-	chat "chatroom/module/chat/controller"
-	"chatroom/module/user/controller"
 	"log"
+	chat "main/module/chat/controller"
+	"main/module/user/controller"
 	"os"
 	"strconv"
 
@@ -49,6 +49,17 @@ func InitServer() *echo.Echo {
 	//api getRoomList
 	server.GET("/api/rooms", getRoomList)
 
+	//chatroom
+
+	hub := newHub()
+	go hub.run()
+	server.GET("/chatroom", func(c echo.Context) error {
+		return c.File("templates/chatroom.html")
+	})
+	server.GET("/chatroom/ws", func(c echo.Context) error {
+		return serveWs(hub, c)
+	})
+	// server.GET("/chatroom/ws", hello)
 	// fmt.Println(Server)
 	server.Logger.Fatal(server.Start(":1323"))
 	return server

@@ -172,7 +172,19 @@ html {
 
 .chatroom-display-box {
   display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
+.chatroom-display-titles {
+  display: flex;
+}
+
+.chatroom-name-list-title, .chatroom-leader-list-title, .chatroom-click-list-title {
+  width: 110px;
+  text-align: center;
+}
+
 
 .chatroom-name-list, .chatroom-leader-list, .chatroom-click-list,.chatroom-page-previous,.chatroom-page-number, .chatroom-page-next {
   margin: auto;

@@ -1,7 +1,7 @@
 package main
 
 import (
-	. "chatroom/module/common/server"
+	. "main/module/common/server"
 )
 
 type user struct {
@@ -12,5 +12,4 @@ type user struct {
 
 func main() {
 	InitServer()
-
 }
