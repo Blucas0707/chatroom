@@ -132,7 +132,7 @@ func UserRegister(db *sql.DB, username, useremail, userpassword string) (bool, e
 
 //user login
 func UserLogin(db *sql.DB, useremail string, userpassword string) (int, string, error) {
-	sel, err := db.Prepare("SELECT count(*), user_name from userinfo where user_email = ? and user_password = ? limit 1")
+	sel, err := db.Prepare("SELECT count(*), user_name from userinfo where user_email = ? and user_password = ? group by user_name limit 1")
 	if err != nil {
 		log.Printf("CheckUserLogin error: %v\n", err)
 		return -1, "", err
