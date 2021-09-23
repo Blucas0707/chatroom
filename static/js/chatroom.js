@@ -31,15 +31,16 @@ let controllers = {
       this.joinRoom();
     })
 
-    // this.ws.addEventListener("message", (event)=>{
-    //   this.handleNewMessage(event);
-    // })
+    this.ws.addEventListener("message", (event)=>{
+      this.handleNewMessage(event);
+    })
   },
   onWebsocketOpen:function(event){
     viewers.renderWSOpen();
   },
   handleNewMessage(event){
-    let data = event.data;
+    let data = JSON.parse(event.data).message;
+    console.log("received msg: ",data);
     data = data.split(/\r?\n/);
     for(let i=0;i<data.length;i++){
       let msg = JSON.parse(data[i])
