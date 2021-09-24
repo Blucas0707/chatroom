@@ -1,14 +1,19 @@
 let viewers = {
   appendLog:function(item) {
-    var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
+    let  doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
     log.appendChild(item);
     if (doScroll) {
         log.scrollTop = log.scrollHeight - log.clientHeight;
     }
   },
   renderWSOpen:function(){
-    var item = document.createElement("div");
+    let item = document.createElement("div");
     item.innerHTML = "<b>Room connected!</b>";
+    this.appendLog(item);
+  },
+  renderMsg:function(msg){
+    let  item = document.createElement("div");
+    item.innerHTML = msg;
     this.appendLog(item);
   }
 }
@@ -39,16 +44,23 @@ let controllers = {
     viewers.renderWSOpen();
   },
   handleNewMessage(event){
-    let data = JSON.parse(event.data).message;
-    console.log("received msg: ",data);
-    data = data.split(/\r?\n/);
-    for(let i=0;i<data.length;i++){
-      let msg = JSON.parse(data[i])
-      this.room = this.findRoom(msg);
-      if(typeof this.room !== 'undefined'){
-        this.room.messages.push(msg);
-      }
+    console.log("received event.data: ",event.data);
+    let msg = JSON.parse(event.data).message;
+    let getroomName = JSON.parse(event.data).target;
+    let sender = JSON.parse(event.data).sender.Name;
+    console.log("received msg: ",msg);
+    msg = msg.split(/\r?\n/);
+    if (this.roomName === getroomName) {
+      let sendMsg = sender + ":" + msg;
+      viewers.renderMsg(sendMsg);
     }
+    // for(let i=0;i<data.length;i++){
+    //   let msg = JSON.parse(data[i])
+    //   this.room = this.findRoom(msg);
+    //   if(typeof this.room !== 'undefined'){
+    //     this.room.messages.push(msg);
+    //   }
+    // }
   },
   findRoom: function(roomName){
     for (let i = 0; i <this.rooms.length; i++) {
