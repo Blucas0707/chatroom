@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Go chatroom</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Project - Go chatroom"/>
+  <link rel="stylesheet" type="text/css" href="/static/css/index-style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="/img/favicon.ico">
+</head>
+
+<body class="body">
+  <main class="main">
+    <!-- login box -->
+    <div class="login-box">
+      <div class="login-header"></div>
+      <div class="login-title"> 登入會員帳號 </div>
+      <div class="login-input-box">
+        <input type="text" name="email" placeholder="輸入電子信箱" class="login-email login-box-item"> 
+        <input type="password" name="password" placeholder="輸入密碼" class="login-password login-box-item">
+      </div> 
+      <div class="login-btn">登入帳戶</div>
+      <div class="login-status"></div>
+      <div class="login-register">還沒有帳戶？點此註冊</div>
+    </div> 
+    <!-- register box -->
+    <div class="register-box">
+      <div class="register-header"></div>
+      <div class="register-title"> 註冊會員帳號 </div>
+      <form id="register-form" method="POST"> 
+        <input type="text" name="name" placeholder="輸入姓名" class="register-name register-box-item" required> 
+        <input type="text" name="email" placeholder="輸入電子信箱" class="register-email register-box-item" required> 
+        <input type="password" name="password" placeholder="輸入密碼" class="register-password register-box-item" required> 
+        <input type="password" name="repassword" placeholder="再次輸入密碼" class="register-password-confirm register-box-item" required> 
+      </form>
+      <div class="register-btn">註冊新帳戶</div>
+      <div class="register-status"></div>
+      <div class="register-login">已經有帳戶了？點此登入</div>
+    </div>
+    <!-- logout bar -->
+    <div class="logout-bar">
+      <div class="logout-bar-username"></div>
+      <div class="logout-bar-btn">登出</div>
+    </div>
+    <!-- chatroom -->
+    <div class="chatroom-main">
+      <div class="chatroom-list">聊天室列表</div>
+      <div class="chatroom-create">建立新房間</div>
+      <div class="chatroom-display-box">
+        <div class="chatroom-display-titles">
+          <div class="chatroom-name-list-title">聊天室名稱
+            <div class="chatroom-name-list"></div>
+          </div>
+          <div class="chatroom-leader-list-title">室長
+            <div class="chatroom-leader-list"></div>
+          </div>
+          <div class="chatroom-click-list-title">操作
+            <div class="chatroom-click-list"></div>
+          </div>
+        </div>
+        <!-- <div class="chatroom-main-content">
+          <div class="chatroom-name-list"></div>
+          <div class="chatroom-leader-list"></div>
+          <div class="chatroom-click-list"></div>
+        </div> -->
+      </div>
+      <div class="chatroom-page-select-bar">
+        <div class="chatroom-page-previous">上一頁</div>
+        <div class="chatroom-page-number"></div>
+        <div class="chatroom-page-next">下一頁</div>
+      </div>
+    </div>
+    <!-- create room -->
+    <div class="chatroom-create-main">
+      <div class="create-title">建立新房間</div>
+      <div class="create-box">
+        <form id="create-form">
+          聊天室名稱: <input type="text" name="roomname" placeholder="輸入chatroom name" class="create-room-name" required> 
+        </form>
+      </div>
+      <div class="create-function-list">
+        <div class="back-to-chatroom-list-btn">返回</div>
+        <div class="room-create-btn">建立</div>
+      </div>
+      <div class="create-status"></div>
+    </div>
+  </main>
+
+  <!-- <footer class="copyright" id="footer">COPYRIGHT &copy;2021 OCW Notebook Taiwan</footer> -->
+  <script src="/static/js/index.js" type="text/javascript"></script>
+</body>
+
+</html>

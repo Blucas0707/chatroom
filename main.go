@@ -1,17 +1,15 @@
 package main
 
 import (
-	"chatroom/module/common/server"
-	"net/http"
-
-	"github.com/labstack/echo"
+	. "main/module/common/server"
 )
 
-func main() {
-	server.InitServer()
+type user struct {
+	username     string
+	useremail    string
+	userpassword string
 }
 
-func getUser(c echo.Context) error {
-	id := c.Param("id")
-	return c.String(http.StatusOK, id)
+func main() {
+	InitServer()
 }
