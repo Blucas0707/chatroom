@@ -129,14 +129,14 @@ func (client *Client) handleLeaveRoomMessage(message Message) {
 	room.unregister <- client
 }
 
-func (client *Client) notifyRoomJoined(roomName string) {
-	message := Message{
-		Action: RoomJoinedAction,
-		Target: roomName,
-		Sender: client,
-	}
-	client.send <- message.encode()
-}
+// func (client *Client) notifyRoomJoined(roomName string) {
+// 	message := Message{
+// 		Action: RoomJoinedAction,
+// 		Target: roomName,
+// 		Sender: client,
+// 	}
+// 	client.send <- message.encode()
+// }
 
 // readPump pumps messages from the websocket connection to the hub.
 //

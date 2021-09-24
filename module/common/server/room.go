@@ -27,7 +27,6 @@ func NewRoom(name string) *Room {
 }
 
 func (room *Room) RunRoom() {
-	fmt.Println("room.go RunRoom executing")
 	for {
 		select {
 		case client := <-room.register:
@@ -35,7 +34,6 @@ func (room *Room) RunRoom() {
 		case client := <-room.unregister:
 			room.unregisterClientInRoom(client)
 		case message := <-room.broadcast:
-			fmt.Println("RunRoom :", message)
 			room.broadcastToClientsInRoom(message.encode())
 		}
 	}
@@ -50,7 +48,6 @@ func (room *Room) registerClientInRoom(client *Client) {
 
 func (room *Room) unregisterClientInRoom(client *Client) {
 	if _, ok := room.clients[client]; ok {
-		fmt.Printf("Client %s left the room\n", client.Name)
 		delete(room.clients, client)
 		room.notifyClientLeft(client)
 	}
@@ -80,7 +77,6 @@ func (room *Room) notifyClientLeft(client *Client) {
 		Message: fmt.Sprintf(leaveMessage, client.GetName()),
 		User:    room.ListRoomUser(client),
 	}
-	fmt.Println(message.User)
 	log.Println("notify message: ", message)
 	room.broadcastToClientsInRoom(message.encode())
 }
@@ -88,7 +84,6 @@ func (room *Room) notifyClientLeft(client *Client) {
 func (room *Room) ListRoomUser(client *Client) []string {
 	NonRepeatedUser := make(map[string]bool)
 	for user := range room.clients {
-		// fmt.Printf("user %s in room %s\n", user.Name, room.name)
 		if _, ok := NonRepeatedUser[user.Name]; !ok {
 			NonRepeatedUser[user.Name] = true
 		}
@@ -98,7 +93,6 @@ func (room *Room) ListRoomUser(client *Client) []string {
 	for nonrepeateduser := range NonRepeatedUser {
 		result = append(result, nonrepeateduser)
 	}
-	// fmt.Println("result: ", result)
 	return result
 }
 

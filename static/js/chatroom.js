@@ -1,8 +1,6 @@
 const SendMessageAction = "send-message";
 const JoinRoomAction = "join-room";
 const LeaveRoomAction = "leave-room";
-// const RoomJoinedAction = "room-joined";
-// const ListRoomAction = "list-room";
 
 let models = {
   user:{
@@ -18,7 +16,6 @@ let models = {
           if(result.data != null){
             models.user.isLogin = true;
             models.user.user_name = result.data.username;
-            // models.user.user_name = JSON.parse(result).data.name;
             resolve("success");
           }
           else{
@@ -115,11 +112,9 @@ let controllers = {
     let msg = JSON.parse(event.data).message;
     let getroomName = JSON.parse(event.data).target;
     let sender = JSON.parse(event.data).sender === null ? "":JSON.parse(event.data).sender.Name;
-    // console.log("received msg: ",msg);
+
     msg = msg.split(/\r?\n/);
     if (this.roomName === getroomName) {
-      // let sendMsg = sender + ":" + msg;
-      // viewers.renderMsg(sendMsg);
 
       let action = JSON.parse(event.data).action;
       let sendMsg = "";
@@ -164,14 +159,6 @@ let controllers = {
       target: this.roomName,
     })
     this.ws.send(this.newMessage);
-    // console.log(this.newMessage);
-    // console.log("Join done!");
-    // this.message = [];
-    // this.room.push({
-    //   "roomname": this.roomName,
-    //   "message": [],
-    // });
-    // this.roomName = "";
   },
   leaveRoom: function(){
     this.newMessage = JSON.stringify({

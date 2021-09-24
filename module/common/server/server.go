@@ -58,7 +58,6 @@ func InitServer() *echo.Echo {
 	})
 	server.GET("/chatroom/ws", func(c echo.Context) error {
 		roomName := c.QueryParam("room")
-		fmt.Println("server.go roomname: ", roomName)
 		if len(roomName) != 0 {
 			// go roomserver.CreateRoom(roomName)
 			serveWs(roomserver, c)
@@ -127,13 +126,11 @@ func userlogininfo(c echo.Context) error {
 		response := responseMessage{
 			Data: userdata,
 		}
-		fmt.Println(response)
 		return c.JSONPretty(http.StatusOK, response, "    ")
 	} else {
 		response := errormessage{
 			Data: nil,
 		}
-		fmt.Printf("response ???")
 		return c.JSONPretty(http.StatusOK, response, "    ")
 	}
 }
@@ -188,8 +185,6 @@ func deleteSession(c echo.Context) error {
 	}
 	sess.Values["username"] = ""
 	sess.Save(c.Request(), c.Response())
-	fmt.Println("delete session done")
-	fmt.Println(getSession(c))
 	return err
 }
 
@@ -205,7 +200,6 @@ func getSession(c echo.Context) (string, string, string) {
 		name := fmt.Sprintf("%v", sess.Values["username"])
 		email := fmt.Sprintf("%v", sess.Values["useremail"])
 		password := fmt.Sprintf("%v", sess.Values["userpassword"])
-		// fmt.Println("session:", name, email, password)
 		return name, email, password
 	}
 }
@@ -222,7 +216,6 @@ func userregister(c echo.Context) error {
 	userpassword := fmt.Sprintf("%v", json_map["password"])
 	passwordConfirm := fmt.Sprintf("%v", json_map["repassword"])
 	result := controller.Register(username, useremail, userpassword, passwordConfirm)
-	fmt.Println(result)
 	return c.JSONPretty(http.StatusOK, result, "    ")
 }
 
@@ -238,7 +231,6 @@ func createRoom(c echo.Context) error {
 	}
 	chatroomName := fmt.Sprintf("%v", json_map["roomname"])
 	result := chat.CreateRoom(chatroomName, owner)
-	fmt.Println(result)
 	return c.JSONPretty(http.StatusOK, result, "    ")
 }
 
@@ -247,11 +239,8 @@ func getRoomList(c echo.Context) error {
 	if owner == "-1" {
 		return c.String(http.StatusOK, "please login first")
 	}
-	// fmt.Println("getRoomList")
 	page := c.QueryParam("page")
-	// fmt.Println(page)
 	pageInt, _ := strconv.Atoi(page)
 	result := chat.GetRoom(pageInt)
-	// fmt.Println(result)
 	return c.JSONPretty(http.StatusOK, result, "    ")
 }

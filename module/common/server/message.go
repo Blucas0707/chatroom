@@ -8,8 +8,6 @@ import (
 const SendMessageAction = "send-message"
 const JoinRoomAction = "join-room"
 const LeaveRoomAction = "leave-room"
-const RoomJoinedAction = "room-joined"
-const ListRoomAction = "list-room"
 
 type Message struct {
 	Action  string   `json:"action"`
