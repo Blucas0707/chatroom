@@ -388,6 +388,7 @@ let controllers = {
     },
     EnterRoom: function(){
       let chatroomClickList = document.querySelector(".chatroom-click-list");
+      let ownerList = document.querySelector(".chatroom-leader-list");
       // let chatroomNameList = document.querySelector(".chatroom-name-list");
       for(let i = 0 ; i < chatroomClickList.childNodes.length; i++) {
         // let roomName = chatroomNameList.childNodes[i].
@@ -395,7 +396,8 @@ let controllers = {
         childNode.addEventListener("click",()=>{
           // redirect to chatroom
           let roomName = childNode.id;
-          let url = "/chatroom?room=" + roomName;
+          let owner = ownerList.childNodes[i].textContent;
+          let url = "/chatroom?room=" + roomName + "&?owner=" + owner;
           window.location.href = url;
         })
       } 

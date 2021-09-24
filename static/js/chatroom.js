@@ -1,3 +1,36 @@
+const SendMessageAction = "send-message";
+const JoinRoomAction = "join-room";
+const LeaveRoomAction = "leave-room";
+// const RoomJoinedAction = "room-joined";
+// const ListRoomAction = "list-room";
+
+let models = {
+  user:{
+    isLogin:null,
+    user_name:null,
+    checkLogin:function(){
+      return new Promise((resolve, reject)=>{
+        return fetch("/api/user",{
+          method:"GET"
+        }).then((response)=>{
+          return response.json();
+        }).then((result)=>{
+          if(result.data != null){
+            models.user.isLogin = true;
+            models.user.user_name = result.data.username;
+            // models.user.user_name = JSON.parse(result).data.name;
+            resolve("success");
+          }
+          else{
+            models.user.isLogin = false;
+            reject("fail");
+          }
+        });
+      });
+    },
+  }
+}
+
 let viewers = {
   appendLog:function(item) {
     let  doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
@@ -15,21 +48,56 @@ let viewers = {
     let  item = document.createElement("div");
     item.innerHTML = msg;
     this.appendLog(item);
-  }
+  },
+  renderUser:function(users){
+    let user_box = document.querySelector(".client-list");
+    //clear first
+    while(user_box.hasChildNodes()){
+      user_box.removeChild(user_box.firstChild);
+    }
+    for (let i = 0;i<users.length;i++) {
+      let  item = document.createElement("div");
+      item.innerHTML = users[i];
+      user_box.appendChild(item);
+    }
+  },
+  showRoomInfo:function(){
+    let roomName = window.location.search.split("&")[0].slice(6,);
+    let owner = window.location.search.split("owner=")[1];
+    let roomNameitem = document.querySelector(".chatroom-name");
+    let roomOwner = document.querySelector(".chatroom-owner");
+    roomNameitem.innerHTML = roomName;
+    roomOwner.innerHTML = owner;
+
+  },
 }
 
 let controllers = {
+  member: {
+    checkLogin:function(){
+      return new Promise((resolve, reject)=>{
+        models.user.checkLogin().then(msg => {
+          // viewers.user.isLogin();
+          resolve(true);
+        }).catch((msg)=>{
+          alert("please login first");
+          window.location.href = "/";
+        });
+      })
+    },
+  },
   ws:null,
   wsURL:"ws://localhost:1323/chatroom/ws",
   roomName:null,
   rooms:null,
   room:null,
   newMessage:null,
+  Users:null,
   connect:function(){
     this.connectToWebsocket();
   },
   connectToWebsocket:function(){
-    this.roomName = window.location.search.slice(6,);
+    this.roomName = window.location.search.split("&")[0].slice(6,);
     this.ws = new WebSocket(this.wsURL+ "?room=" + this.roomName);
     this.ws.addEventListener("open", (event)=>{
       this.onWebsocketOpen(event);
@@ -44,23 +112,34 @@ let controllers = {
     viewers.renderWSOpen();
   },
   handleNewMessage(event){
-    console.log("received event.data: ",event.data);
     let msg = JSON.parse(event.data).message;
     let getroomName = JSON.parse(event.data).target;
-    let sender = JSON.parse(event.data).sender.Name;
-    console.log("received msg: ",msg);
+    let sender = JSON.parse(event.data).sender === null ? "":JSON.parse(event.data).sender.Name;
+    // console.log("received msg: ",msg);
     msg = msg.split(/\r?\n/);
     if (this.roomName === getroomName) {
-      let sendMsg = sender + ":" + msg;
+      // let sendMsg = sender + ":" + msg;
+      // viewers.renderMsg(sendMsg);
+
+      let action = JSON.parse(event.data).action;
+      let sendMsg = "";
+      switch (action) {
+        case SendMessageAction:
+          sendMsg = sender + ":" + msg;
+          break;
+        case JoinRoomAction:
+          sendMsg = msg;
+          this.Users = JSON.parse(event.data).user;
+          break;
+        case LeaveRoomAction:
+          sendMsg = msg;
+          this.Users = JSON.parse(event.data).user;
+          break;
+      }
       viewers.renderMsg(sendMsg);
+      viewers.renderUser(this.Users);
     }
-    // for(let i=0;i<data.length;i++){
-    //   let msg = JSON.parse(data[i])
-    //   this.room = this.findRoom(msg);
-    //   if(typeof this.room !== 'undefined'){
-    //     this.room.messages.push(msg);
-    //   }
-    // }
+
   },
   findRoom: function(roomName){
     for (let i = 0; i <this.rooms.length; i++) {
@@ -71,24 +150,22 @@ let controllers = {
   },
   sendMessage: function(message){
     this.newMessage = JSON.stringify({
-      action: 'send-message',
+      action: SendMessageAction,
       message: message,
       target: this.roomName,
     })
-    console.log("send msg: ", this.newMessage);
     this.ws.send(this.newMessage);
     this.newMessage.message = "";
-    console.log("send done");
   },
   joinRoom: function(){
     this.newMessage = JSON.stringify({
-      action: 'join-room',
+      action: JoinRoomAction,
       message: "",
       target: this.roomName,
     })
     this.ws.send(this.newMessage);
-    console.log(this.newMessage);
-    console.log("Join done!");
+    // console.log(this.newMessage);
+    // console.log("Join done!");
     // this.message = [];
     // this.room.push({
     //   "roomname": this.roomName,
@@ -97,16 +174,13 @@ let controllers = {
     // this.roomName = "";
   },
   leaveRoom: function(){
-    this.ws.send(JSON.stringify({
-      action: "leave-room",
-      message: this.room.name,
-    }));
-    for (let i = 0; i < this.rooms.length; i++){
-      if (this.rooms[i].name === room.name){
-        this.rooms.splice(i, 1);
-        break;
-      }
-    }
+    this.newMessage = JSON.stringify({
+      action: LeaveRoomAction,
+      message: "",
+      target: this.roomName,
+    });
+    this.ws.send(this.newMessage);
+    window.location.href ="/";
   },
   SubmitMessage:function(){
     let msg = document.getElementById("msg-input");
@@ -125,73 +199,23 @@ let controllers = {
       return false;
     })
   },
+  LeaveRoom:function(){
+    let leave_btn = document.querySelector(".leave-btn");
+    leave_btn.addEventListener("click",()=>{
+      if (!this.ws) {
+        return false;
+      }
+      this.leaveRoom();
+    })
+  },
   init:function(){
-    controllers.connect();
-    // controllers.joinRoom();
-    controllers.SubmitMessage();
+    controllers.member.checkLogin().then(()=>{
+      viewers.showRoomInfo();
+      controllers.connect();
+      controllers.SubmitMessage();
+      controllers.LeaveRoom();
+    });
   },
 }
 
 controllers.init();
-
-/*
-window.onload = function () {
-  var conn;
-  var msg = document.getElementById("msg");
-  var log = document.getElementById("log");
-
-  function appendLog(item) {
-      var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
-      log.appendChild(item);
-      if (doScroll) {
-          log.scrollTop = log.scrollHeight - log.clientHeight;
-      }
-  }
-
-  document.getElementById("form").onsubmit = function () {
-      if (!conn) {
-          return false;
-      }
-      if (!msg.value) {
-          return false;
-      }
-      console.log("send msg: ", msg.value);
-      conn.send(msg.value);
-      msg.value = "";
-      return false;
-  };
-
-  if (window["WebSocket"]) {
-      roomName = window.location.search.slice(6,)
-      wsUrl = "ws://" + document.location.host + "/chatroom/ws?room=" + roomName;
-      console.log(wsUrl);
-      conn = new WebSocket(wsUrl);
-      conn.onopen = function (evt){
-        var item = document.createElement("div");
-        item.innerHTML = "<b>Room connected!</b>";
-        appendLog(item);
-      };
-      conn.onclose = function (evt) {
-          var item = document.createElement("div");
-          item.innerHTML = "<b>Connection closed.</b>";
-          appendLog(item);
-      };
-      conn.onmessage = function (evt) {
-          var messages = evt.data.split('\r?\n');
-          console.log("received msg: ", messages);
-          for (var i = 0; i < messages.length; i++) {
-            let msg = JSON.parse(messages[i]);
-            var item = document.createElement("div");
-              item.innerText = messages[i];
-              appendLog(item);
-          }
-      };
-  } else {
-      var item = document.createElement("div");
-      item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
-      appendLog(item);
-  }
-
-};
-
-*/

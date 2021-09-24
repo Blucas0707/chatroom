@@ -6,6 +6,7 @@ import (
 )
 
 const welcomeMessage = "%s joined the room"
+const leaveMessage = "%s left the room"
 
 type Room struct {
 	name       string
@@ -41,14 +42,17 @@ func (room *Room) RunRoom() {
 }
 
 func (room *Room) registerClientInRoom(client *Client) {
-	room.notifyClientJoined(client)
-	room.clients[client] = true
+	if _, ok := room.clients[client]; !ok {
+		room.clients[client] = true
+		room.notifyClientJoined(client)
+	}
 }
 
 func (room *Room) unregisterClientInRoom(client *Client) {
-	if _, ok := room.clients[client]; !ok {
-		fmt.Printf("Client %s left the room", client.Name)
+	if _, ok := room.clients[client]; ok {
+		fmt.Printf("Client %s left the room\n", client.Name)
 		delete(room.clients, client)
+		room.notifyClientLeft(client)
 	}
 }
 
@@ -60,12 +64,42 @@ func (room *Room) broadcastToClientsInRoom(messageEncode []byte) {
 
 func (room *Room) notifyClientJoined(client *Client) {
 	message := &Message{
-		Action:  SendMessageAction,
+		Action:  JoinRoomAction,
 		Target:  room.name,
 		Message: fmt.Sprintf(welcomeMessage, client.GetName()),
+		User:    room.ListRoomUser(client),
 	}
 	log.Println("notify message: ", message)
 	room.broadcastToClientsInRoom(message.encode())
+}
+
+func (room *Room) notifyClientLeft(client *Client) {
+	message := &Message{
+		Action:  LeaveRoomAction,
+		Target:  room.name,
+		Message: fmt.Sprintf(leaveMessage, client.GetName()),
+		User:    room.ListRoomUser(client),
+	}
+	fmt.Println(message.User)
+	log.Println("notify message: ", message)
+	room.broadcastToClientsInRoom(message.encode())
+}
+
+func (room *Room) ListRoomUser(client *Client) []string {
+	NonRepeatedUser := make(map[string]bool)
+	for user := range room.clients {
+		// fmt.Printf("user %s in room %s\n", user.Name, room.name)
+		if _, ok := NonRepeatedUser[user.Name]; !ok {
+			NonRepeatedUser[user.Name] = true
+		}
+	}
+
+	result := []string{}
+	for nonrepeateduser := range NonRepeatedUser {
+		result = append(result, nonrepeateduser)
+	}
+	// fmt.Println("result: ", result)
+	return result
 }
 
 func (room *Room) GetName() string {

@@ -56,8 +56,8 @@ func (roomserver *RoomServer) unregisterClient(client *Client) {
 	}
 }
 
-func (servroomserverer *RoomServer) broadcastToClients(message []byte) {
-	for client := range servroomserverer.clients {
+func (roomserver *RoomServer) broadcastToClients(message []byte) {
+	for client := range roomserver.clients {
 		client.send <- message
 	}
 }

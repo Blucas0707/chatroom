@@ -68,18 +68,19 @@ body {
     width: 100%;
 }
 
-.submit-btn {
+.submit-btn,.leave-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: auto;
+    margin-left: 30px;
     border-style: solid;
     padding: 0 0.5rem;
     border-radius: 0.1rem;
 }
 
-.submit-btn:hover {
+.submit-btn:hover, .leave-btn:hover {
     cursor: pointer;
+    color: blue;
 }
 
 /* #log {
