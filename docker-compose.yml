@@ -1,3 +1,17 @@
 # https://docs.docker.com/compose/
 version "1.0"
 services:
+  app:
+    build: .
+    ports:
+      - "1323:1323"
+    networks:
+      - backend
+  db:
+    build: Dockerfile.sql
+    networks:
+      - backend
+
+networks:
+  backend: Dockerfile
+    driver: bridge
