@@ -1,11 +1,22 @@
 # syntax=docker/dockerfile:1
 
-FROM golang
+# Build stage
+FROM golang as build
 # Update
 RUN apt-get update 
+# Assign work directory
 WORKDIR /chatroom
+# Copy root directory to container
 COPY . .
-RUN go build -o app
-EXPOSE 1323
+# Download go modules
+RUN go mod tidy && \
+    CGO_ENABLED=0 GOOS=linux go build -o /app/server /chatroom/main.go
 
-CMD ["./app"]
+# Deploy stage
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+COPY --from=build /app/server .
+COPY --from=build /chatroom/.env .
+COPY --from=build /chatroom/. .
+EXPOSE 1323
+CMD ["./server"]
