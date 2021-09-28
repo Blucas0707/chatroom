@@ -3,8 +3,8 @@ package model
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"main/module/common/db_module"
-	. "main/module/common/db_module"
 	"regexp"
 	"sync"
 	"unicode"
@@ -69,6 +69,28 @@ var db *sql.DB
 
 func init() {
 	db, _ = db_module.InitDB()
+}
+
+//user register
+func CreateUser(username, useremail, userpassword string) (bool, error) {
+	ins, err := db.Prepare("insert into userinfo(user_name, user_email, user_password) values(?, ?, ?)")
+	if err != nil {
+		log.Println("sel error:", err)
+		return false, err
+	}
+	defer ins.Close()
+
+	result, err := ins.Exec(username, useremail, userpassword)
+	if err != nil {
+		return false, err
+	}
+	defer ins.Close()
+	id, err := result.LastInsertId()
+	if err != nil {
+		return false, err
+	}
+	fmt.Printf("LastInsertId: %d\n", id)
+	return true, nil
 }
 
 func CheckUserLogin(email, password string) (Message, string) {
@@ -148,7 +170,7 @@ func CheckUserRegister(name, email, password, passwordConfirm string) Message {
 		select {
 		case iscontinue := <-c:
 			if iscontinue {
-				checkResult, _ := CheckNameisNotExisted(db, name)
+				checkResult, _ := db_module.CheckNameisNotExisted(db, name)
 				fmt.Println("name check:", checkResult)
 				c <- checkResult
 
@@ -171,7 +193,7 @@ func CheckUserRegister(name, email, password, passwordConfirm string) Message {
 		select {
 		case iscontinue := <-c:
 			if iscontinue {
-				checkResult, _ := CheckEmailisNotExisted(db, name)
+				checkResult, _ := db_module.CheckEmailisNotExisted(db, name)
 				fmt.Println("email check:", checkResult)
 				c <- checkResult
 

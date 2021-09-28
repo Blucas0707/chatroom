@@ -23,7 +23,21 @@ const (
 //InitDB
 func InitDB() (*sql.DB, error) {
 	//Create connection pool
-	// fmt.Println("Preparing to create a connection pool")
+	fmt.Println("Preparing to create a connection pool")
+
+	db, err := connectDB()
+
+	for err != nil {
+		time.Sleep(2 * time.Second)
+		fmt.Println("Reconnect to db")
+		db, err = connectDB()
+	}
+
+	return db, nil
+
+}
+
+func connectDB() (*sql.DB, error) {
 	sql_connection_info := os.Getenv("SQL_CONNECTION_INFO")
 	db, err := sql.Open("mysql", sql_connection_info)
 	if err != nil {
@@ -34,16 +48,10 @@ func InitDB() (*sql.DB, error) {
 		fmt.Println("error occur when ping sql_db:", err)
 		return nil, err
 	}
-
-	// fmt.Println("Set DB ConnMaxLifetime: ", ConnMaxLifetime)
 	db.SetConnMaxLifetime(time.Minute * time.Duration(ConnMaxLifetime))
-	// fmt.Println("Set DB MaxOpenConns: ", MaxOpenConns)
 	db.SetMaxOpenConns(MaxOpenConns)
-	// fmt.Println("Set DB MaxIdleConns: ", MaxIdleConns)
 	db.SetMaxIdleConns(MaxIdleConns)
-	// fmt.Println("connect to DB successfully")
 	return db, nil
-
 }
 
 // Check email is taken

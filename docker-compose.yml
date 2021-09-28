@@ -21,6 +21,6 @@ services:
       - backend
     env_file:
       - db-variables.env
-
+    
 networks:
   backend: 

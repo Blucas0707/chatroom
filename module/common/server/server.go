@@ -66,7 +66,6 @@ func InitServer() *echo.Echo {
 		}
 		return nil
 	})
-	// server.GET("/chatroom/ws", hello)
 	// fmt.Println(Server)
 	server.Logger.Fatal(server.Start(":1323"))
 	return server

@@ -1,0 +1,7 @@
+# syntax=docker/dockerfile:1
+FROM nginx
+
+# docker-entrypoint-initdb.d will execute .sql files
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
