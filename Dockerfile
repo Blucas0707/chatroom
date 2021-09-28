@@ -14,9 +14,10 @@ RUN go mod tidy && \
 
 # Deploy stage
 FROM alpine:latest
-RUN apk --no-cache add ca-certificates
+RUN apk update && apk add bash && apk --no-cache add ca-certificates
+COPY --from=build /chatroom/wait-for-it.sh .
 COPY --from=build /app/server .
 COPY --from=build /chatroom/.env .
 COPY --from=build /chatroom/. .
 EXPOSE 1323
-CMD ["./server"]
+# CMD ["./server"]
