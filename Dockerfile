@@ -20,4 +20,4 @@ COPY --from=build /app/server .
 # COPY --from=build /chatroom/.env .
 COPY --from=build /chatroom/. .
 EXPOSE 8080
-# CMD ["./server"]
+CMD ["./server"]
