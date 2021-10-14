@@ -19,5 +19,5 @@ COPY --from=build /chatroom/wait-for-it.sh .
 COPY --from=build /app/server .
 COPY --from=build /chatroom/.env .
 COPY --from=build /chatroom/. .
-EXPOSE 1323
+EXPOSE 8080
 # CMD ["./server"]

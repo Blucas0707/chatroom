@@ -67,7 +67,7 @@ func InitServer() *echo.Echo {
 		return nil
 	})
 	// fmt.Println(Server)
-	server.Logger.Fatal(server.Start(":1323"))
+	server.Logger.Fatal(server.Start(":8080"))
 	return server
 }
 
