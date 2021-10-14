@@ -67,7 +67,12 @@ func InitServer() *echo.Echo {
 		return nil
 	})
 	// fmt.Println(Server)
-	server.Logger.Fatal(server.Start(":8080"))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	path := fmt.Sprintf(":%s", port)
+	server.Logger.Fatal(server.Start(path))
 	return server
 }
 
