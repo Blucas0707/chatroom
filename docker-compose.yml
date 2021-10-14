@@ -1,0 +1,26 @@
+# https://docs.docker.com/compose/
+version: "3.3"
+services:
+  app:
+    container_name: "chat-server-compose"
+    build: .
+    depends_on:
+      - db
+    ports:
+      - "1323:1323"
+    networks:
+      - backend
+    command: ["./wait-for-it.sh","chat-db:3306","--","./server"]
+
+  db:
+    container_name: "chat-db"
+    build: 
+      context: .
+      dockerfile: Dockerfile.sql
+    networks:
+      - backend
+    env_file:
+      - db-variables.env
+    
+networks:
+  backend: 

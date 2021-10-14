@@ -1,0 +1,11 @@
+userinfo
+user_id
+user_name
+user_email
+user_password
+
+create table chatroom_list (
+id bigint auto_increment not null comment 'id',
+name varchar(100) not null comment 'chatroom name',
+owner varchar(100) not null comment 'room owner',
+primary key(id));
