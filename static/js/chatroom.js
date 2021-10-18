@@ -84,7 +84,7 @@ let controllers = {
     },
   },
   ws:null,
-  wsURL:"ws://"+document.location.host+"/chatroom/ws",
+  wsURL:"wss://"+document.location.host+"/chatroom/ws",
   roomName:null,
   rooms:null,
   room:null,
