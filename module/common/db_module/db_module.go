@@ -37,8 +37,33 @@ func InitDB() (*sql.DB, error) {
 
 }
 
+var (
+	dbUser                 = mustGetenv("DB_USER")                  // e.g. 'my-db-user'
+	dbPwd                  = mustGetenv("DB_PASS")                  // e.g. 'my-db-password'
+	instanceConnectionName = mustGetenv("INSTANCE_CONNECTION_NAME") // e.g. 'project:region:instance'
+	dbName                 = mustGetenv("DB_NAME")                  // e.g. 'my-database'
+)
+
+// // dbPool is the pool of database connections.
+// dbPool, err := sql.Open("mysql", dbURI)
+// if err != nil {
+// 	return nil, fmt.Errorf("sql.Open: %v", err)
+// }
+
+// // ...
+
+// return dbPool, nil
+
 func connectDB() (*sql.DB, error) {
-	sql_connection_info := os.Getenv("SQL_CONNECTION_INFO")
+	socketDir, isSet := os.LookupEnv("DB_SOCKET_DIR")
+	if !isSet {
+		socketDir = "/cloudsql"
+	}
+
+	dbURI := fmt.Sprintf("%s:%s@unix(/%s/%s)/%s?parseTime=true", dbUser, dbPwd, socketDir, instanceConnectionName, dbName)
+
+	// sql_connection_info := os.Getenv("SQL_CONNECTION_INFO")
+	sql_connection_info := dbURI
 	db, err := sql.Open("mysql", sql_connection_info)
 	if err != nil {
 		fmt.Println("error occur when connect to sql:", err)
