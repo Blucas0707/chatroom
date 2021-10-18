@@ -84,7 +84,7 @@ let controllers = {
     },
   },
   ws:null,
-  wsURL:"ws://localhost:1323/chatroom/ws",
+  wsURL:"ws://https://chatroom-m6cesrpbta-de.a.run.app/chatroom/ws",
   roomName:null,
   rooms:null,
   room:null,
