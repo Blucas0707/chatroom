@@ -3,7 +3,7 @@
 # Build stage
 FROM golang as build
 # Update
-RUN apt-get update && apk --no-cache
+RUN apt-get update
 # Assign work directory
 WORKDIR /chatroom
 # Copy root directory to container
