@@ -60,8 +60,8 @@ func connectDB() (*sql.DB, error) {
 		socketDir = "/cloudsql"
 	}
 
-	dbURI := fmt.Sprintf("%s:%s@unix(/%s/%s)/%s?parseTime=true", dbUser, dbPwd, socketDir, instanceConnectionName, dbName)
-
+	dbURI := fmt.Sprintf("%s:%s@unix(%s/%s)/%s?parseTime=true", dbUser, dbPwd, socketDir, instanceConnectionName, dbName)
+	fmt.Println(dbURI)
 	// sql_connection_info := os.Getenv("SQL_CONNECTION_INFO")
 	sql_connection_info := dbURI
 	db, err := sql.Open("mysql", sql_connection_info)
@@ -77,6 +77,16 @@ func connectDB() (*sql.DB, error) {
 	db.SetMaxOpenConns(MaxOpenConns)
 	db.SetMaxIdleConns(MaxIdleConns)
 	return db, nil
+}
+
+// mustGetEnv is a helper function for getting environment variables.
+// Displays a warning if the environment variable is not set.
+func mustGetenv(k string) string {
+	v := os.Getenv(k)
+	if v == "" {
+		log.Fatalf("Warning: %s environment variable not set.\n", k)
+	}
+	return v
 }
 
 // Check email is taken
